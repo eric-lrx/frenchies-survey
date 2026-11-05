@@ -94,6 +94,21 @@ export interface NewSurveyBody {
   questions: { text: string; type: QuestionType; options?: string[] }[];
 }
 
+export interface OpenSurvey {
+  id: number;
+  title: string;
+  description: string | null;
+  publishedAt: string;
+  questionCount: number;
+}
+
+export interface OpenSurveyDetail {
+  id: number;
+  title: string;
+  description: string | null;
+  questions: Question[];
+}
+
 export const api = {
   login: (email: string, password: string) => request<User>("POST", "/api/auth/login", { email, password }),
   logout: () => request<void>("POST", "/api/auth/logout"),
@@ -104,6 +119,8 @@ export const api = {
   getSurvey: (id: number) => request<SurveyDetail>("GET", `/api/surveys/${id}`),
   publishSurvey: (id: number) =>
     request<{ id: number; status: SurveyStatus; publishedAt: string }>("POST", `/api/surveys/${id}/publish`),
+  listOpenSurveys: () => request<OpenSurvey[]>("GET", "/api/open-surveys"),
+  getOpenSurvey: (id: number) => request<OpenSurveyDetail>("GET", `/api/open-surveys/${id}`),
 };
 
 export const STATUS_LABELS: Record<SurveyStatus, string> = {

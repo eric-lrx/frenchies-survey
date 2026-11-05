@@ -4,7 +4,7 @@
 |---|---|
 | Requirements | FR-08 (and BR-10 for what a respondent may see) |
 | Depends on | F-04 |
-| Version | 1.0, 2026-11-05 |
+| Version | 1.1, 2026-11-05 (see section 7) |
 
 ## 1. Behaviour
 
@@ -13,7 +13,8 @@ appear, and opening one by its id gives 404. A respondent sees only what is need
 no response count, no other respondent's data.
 
 The list also says, for each survey, whether this respondent has already answered it, so the UI can show
-"Answered" instead of an "Answer" button. Re-reading one's own answers in a list is F-11 (Sprint 2).
+"Answered" instead of an "Answer" button. `alreadyResponded` and the "Answered" badge are added by F-06,
+which creates the `Response` table; until then each card offers "Answer". Re-reading one's own answers in a list is F-11 (Sprint 2).
 
 ## 2. API
 
@@ -37,7 +38,8 @@ Neither body contains `ownerId`, `responseCount`, `status` or any answer.
 
 - **Open surveys** (`/surveys`): one card per survey with title, description, number of questions, and
   either an "Answer" button or an "Answered" badge. Empty state: "No survey is open right now."
-- **Fill survey** (`/surveys/:id`): defined in F-06. If the survey was already answered, the page says so
+- **Survey page** (`/surveys/:id`): title, description and the questions with their options, read-only
+  until F-06 turns it into the answer form (defined in F-06). If the survey was already answered, the page says so
   and offers a link back to the list instead of the form. A 404 shows "This survey is not available."
 
 ## 4. Data
@@ -56,7 +58,7 @@ list, not one per survey.
 
 | Test | AC | Level | Precondition or input | Action | Expected result |
 |---|---|---|---|---|---|
-| TEST-F05-01 | AC-F05-01 | API | One DRAFT, two PUBLISHED and one CLOSED survey; the respondent has answered one PUBLISHED | `GET /api/open-surveys` | Exactly the two PUBLISHED surveys; `alreadyResponded` true for the answered one only |
+| TEST-F05-01 | AC-F05-01 | API | One DRAFT, two PUBLISHED and one CLOSED survey; the respondent has answered one PUBLISHED (added with F-06) | `GET /api/open-surveys` | Exactly the two PUBLISHED surveys, newest publication first; `alreadyResponded` true for the answered one only (checked from F-06) |
 | TEST-F05-02 | AC-F05-02 | API | Same data | Open a PUBLISHED, a DRAFT and a CLOSED survey | 200 with ordered questions and options and none of the forbidden keys; 404 for the DRAFT and the CLOSED |
 | E2E-01 | AC-F05-01 | End to end | See F-07 | The respondent finds the new survey in the list | The survey is listed with an "Answer" button |
 
@@ -65,3 +67,4 @@ list, not one per survey.
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 1.0 | 2026-11-05 | First version | Written before implementation |
+| 1.1 | 2026-11-05 | `alreadyResponded` and the "Answered" badge move to F-06; `/surveys/:id` shows the questions read-only until F-06 | The `Response` table is created by F-06 |

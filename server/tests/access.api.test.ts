@@ -7,7 +7,7 @@ import { prisma } from "../src/prisma.js";
 import { requireAuth, requireRole } from "../src/auth/middleware.js";
 import { resetDatabase, tableCounts } from "./helpers/db.js";
 import { createUser, loginCookie } from "./helpers/users.js";
-import { OWNED_SURVEY_ROUTES, OWNER_ROUTES } from "./helpers/routes.js";
+import { OWNED_SURVEY_ROUTES, OWNER_ROUTES, RESPONDENT_ROUTES } from "./helpers/routes.js";
 import { VALID_SURVEY_BODY, createSurvey } from "./helpers/surveys.js";
 
 // F-02 Role-based access and ownership (docs/sprints/sprint-1/F-02-access-control.md, v1.1).
@@ -109,6 +109,23 @@ describe("Owner routes", () => {
       expect(res.status).toBe(404);
       expect(res.body).toEqual({ error: { code: "NOT_FOUND", message: "Survey not found." } });
     }
+  });
+});
+
+describe("Respondent routes", () => {
+  it("TEST-F02-02 answers every Respondent route with 403 for a Survey Owner, storing nothing", async () => {
+    const owner = await createUser("SURVEY_OWNER", { email: "owner@test.local" });
+    const survey = await createSurvey(owner.id, { status: "PUBLISHED" });
+    const cookie = await loginCookie(app, "owner@test.local");
+    const before = await tableCounts();
+
+    for (const route of RESPONDENT_ROUTES) {
+      const path = route.path.replace(":id", String(survey.id));
+      const res = await request(app)[route.method](path).set("Cookie", cookie);
+      expect(res.status, `${route.method.toUpperCase()} ${path}`).toBe(403);
+      expect(res.body.error.code).toBe("FORBIDDEN");
+    }
+    expect(await tableCounts()).toEqual(before);
   });
 });
 
