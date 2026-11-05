@@ -82,3 +82,54 @@ textarea:focus-visible {
   outline: 3px solid #c47f2c;
   outline-offset: 2px;
 }
+
+.cf-panel {
+  background: #fff;
+  border: 1px solid #e6dccf;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.field-error {
+  color: #b42318;
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0;
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.status-draft {
+  color: #5c5c5c;
+  background: #f1f1f1;
+}
+
+.status-published {
+  color: #1d6b3a;
+  background: #e7f5ec;
+}
+
+.status-closed {
+  color: #7a3b12;
+  background: #fbeee4;
+}
+
+.question-list {
+  padding-left: 1.25rem;
+}
+
+.question-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #efe7dc;
+}
+
+.question-item:last-child {
+  border-bottom: 0;
+}

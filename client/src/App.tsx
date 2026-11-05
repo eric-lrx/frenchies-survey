@@ -3,6 +3,9 @@ import { Navigate, NavLink, Outlet, Route, Routes, useNavigate } from "react-rou
 import { homePath, ROLE_LABELS, type Role } from "./api.js";
 import { useAuth } from "./auth/AuthContext.js";
 import Login from "./pages/Login.js";
+import MySurveys from "./pages/owner/MySurveys.js";
+import NewSurvey from "./pages/owner/NewSurvey.js";
+import SurveyDetail from "./pages/owner/SurveyDetail.js";
 
 // Application shell (F-08), sign-in and sign-out (F-01), role navigation and role routes
 // (F-02). The screens of each role are filled by F-03 to F-07.
@@ -24,8 +27,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={user ? <Navigate to={homePath(user.role)} replace /> : <Login />} />
         <Route element={<RoleRoute role="SURVEY_OWNER" />}>
-          <Route path="/owner/surveys" element={<h1 className="h4">My surveys</h1>} />
-          <Route path="/owner/surveys/new" element={<h1 className="h4">New survey</h1>} />
+          <Route path="/owner/surveys" element={<MySurveys />} />
+          <Route path="/owner/surveys/new" element={<NewSurvey />} />
+          <Route path="/owner/surveys/:id" element={<SurveyDetail />} />
         </Route>
         <Route element={<RoleRoute role="RESPONDENT" />}>
           <Route path="/surveys" element={<h1 className="h4">Open surveys</h1>} />
