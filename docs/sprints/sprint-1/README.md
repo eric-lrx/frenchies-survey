@@ -56,7 +56,10 @@ Error codes used in every contract:
 | 409 | `SURVEY_HAS_NO_QUESTIONS` | Publishing a survey without questions |
 | 409 | `SURVEY_NOT_OPEN` | Answering a CLOSED survey |
 | 409 | `DUPLICATE_RESPONSE` | The respondent already answered this survey |
+| 413 | `PAYLOAD_TOO_LARGE` | A JSON body over 100 kB |
 | 415 | `UNSUPPORTED_MEDIA_TYPE` | A request with a body that is not `application/json` |
+| 500 | `INTERNAL_ERROR` | An unexpected server error; the details are logged, never returned |
+| 503 | `NOT_READY` | `GET /api/ready` when the database does not answer |
 
 ## Implementation order and Issues
 
