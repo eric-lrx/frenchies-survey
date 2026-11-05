@@ -98,6 +98,27 @@ describe("GET /api/auth/me", () => {
   });
 });
 
+describe("GET /api/auth/session", () => {
+  it("TEST-F01-08 always answers 200: null without a valid session, the identity (no hash) with one", async () => {
+    const anonymous = await request(app).get("/api/auth/session");
+    expect(anonymous.status).toBe(200);
+    expect(anonymous.body).toEqual({ data: null });
+
+    const user = await createUser("RESPONDENT", { name: "Alice", email: "alice@test.local" });
+    const cookie = await loginCookie(app, "alice@test.local");
+    await prisma.session.updateMany({ data: { expiresAt: new Date(Date.now() - 1000) } });
+    const expired = await request(app).get("/api/auth/session").set("Cookie", cookie);
+    expect(expired.status).toBe(200);
+    expect(expired.body).toEqual({ data: null });
+
+    const fresh = await loginCookie(app, "alice@test.local");
+    const valid = await request(app).get("/api/auth/session").set("Cookie", fresh);
+    expect(valid.status).toBe(200);
+    expect(valid.body).toEqual({ data: { id: user.id, name: "Alice", email: "alice@test.local", role: "RESPONDENT" } });
+    expect(JSON.stringify(valid.body)).not.toMatch(/passwordHash|\$2[aby]\$/);
+  });
+});
+
 describe("POST /api/auth/logout", () => {
   it("TEST-F01-04 ends the session on the server, so the old cookie value gets 401 afterwards", async () => {
     await createUser("SURVEY_OWNER", { email: "camille@test.local" });
