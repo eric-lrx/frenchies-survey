@@ -12,6 +12,8 @@ export const PROTECTED_ROUTES: Route[] = [
   { method: "post", path: "/api/surveys/1/publish" },
   { method: "get", path: "/api/open-surveys" },
   { method: "get", path: "/api/open-surveys/1" },
+  { method: "post", path: "/api/open-surveys/1/responses" },
+  { method: "get", path: "/api/responses/1" },
 ];
 
 // Survey Owner routes: a Respondent gets 403 on each (TEST-F02-01).
@@ -32,4 +34,6 @@ export const OWNED_SURVEY_ROUTES: Route[] = [
 export const RESPONDENT_ROUTES: Route[] = [
   { method: "get", path: "/api/open-surveys" },
   { method: "get", path: "/api/open-surveys/:id" },
+  { method: "post", path: "/api/open-surveys/:id/responses" },
+  { method: "get", path: "/api/responses/:responseId" },
 ];

@@ -4,7 +4,7 @@ import { createApp } from "../src/app.js";
 import { prisma } from "../src/prisma.js";
 import { resetDatabase, tableCounts } from "./helpers/db.js";
 import { createUser, loginCookie } from "./helpers/users.js";
-import { VALID_SURVEY_BODY, createSurvey } from "./helpers/surveys.js";
+import { VALID_SURVEY_BODY, createResponse, createSurvey } from "./helpers/surveys.js";
 
 // F-03 Create survey (docs/sprints/sprint-1/F-03-create-survey.md).
 const app = createApp();
@@ -106,6 +106,19 @@ describe("GET /api/surveys and /api/surveys/:id", () => {
     expect(detail.body.data).toMatchObject({ id: older.id, title: "Winter drinks", ownerId, status: "DRAFT" });
     expect(detail.body.data.questions).toHaveLength(2);
     expect(detail.body.data.questions[1].options.map((o: { label: string }) => o.label)).toEqual(["Latte", "Iced tea", "Espresso"]);
+  });
+
+  it("counts the responses of each survey in the owner's list (added with F-06, F-03 contract v1.1)", async () => {
+    const survey = await createSurvey(ownerId, { status: "PUBLISHED" });
+    await createSurvey(ownerId, { title: "Terrace opening" });
+    for (const email of ["a@test.local", "b@test.local"]) {
+      await createResponse(survey, (await createUser("RESPONDENT", { email })).id);
+    }
+
+    const res = await request(app).get("/api/surveys").set("Cookie", ownerCookie);
+
+    const counts = Object.fromEntries(res.body.data.map((s: { title: string; responseCount: number }) => [s.title, s.responseCount]));
+    expect(counts).toEqual({ "Spring menu feedback": 2, "Terrace opening": 0 });
   });
 
   it("shows an empty list to an owner without surveys", async () => {
