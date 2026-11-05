@@ -34,6 +34,21 @@ describe("Seed", () => {
     ]);
   });
 
+  it("creates the demo surveys of the F-08 contract, each with questions (F-03)", async () => {
+    await seedDatabase(prisma, SEED_TEST_PASSWORD);
+    const surveys = await prisma.survey.findMany({
+      orderBy: { title: "asc" },
+      select: { title: true, status: true, owner: { select: { email: true } }, _count: { select: { questions: true } } },
+    });
+    expect(surveys.map((s) => [s.title, s.status, s.owner.email])).toEqual([
+      ["Barista service", "PUBLISHED", "lucas@cafe.test"],
+      ["Spring menu feedback", "PUBLISHED", "camille@cafe.test"],
+      ["Terrace opening", "DRAFT", "camille@cafe.test"],
+      ["Winter drinks", "CLOSED", "camille@cafe.test"],
+    ]);
+    for (const s of surveys) expect(s._count.questions).toBeGreaterThan(0);
+  });
+
   it("TEST-F01-06 stores only bcrypt hashes with a cost of at least 10, never the plaintext password", async () => {
     await seedDatabase(prisma, SEED_TEST_PASSWORD);
     const users = await prisma.user.findMany({ select: { passwordHash: true } });
