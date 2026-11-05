@@ -204,3 +204,28 @@ textarea:focus-visible {
 .answer-list dd {
   margin-bottom: 0.75rem;
 }
+
+.summary-count {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.summary-table td {
+  width: 100%;
+}
+
+.summary-table th[scope="row"] {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* The bar only repeats the number written next to it. */
+.summary-bar {
+  display: inline-block;
+  height: 0.7rem;
+  max-width: 70%;
+  background: #c47f2c;
+  border-radius: 2px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}

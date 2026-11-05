@@ -131,6 +131,18 @@ export interface ResponseDetail {
   )[];
 }
 
+export type QuestionSummary =
+  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5", number> }
+  | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] };
+
+export interface SurveySummary {
+  surveyId: number;
+  title: string;
+  status: SurveyStatus;
+  responseCount: number;
+  questions: QuestionSummary[];
+}
+
 export const api = {
   login: (email: string, password: string) => request<User>("POST", "/api/auth/login", { email, password }),
   logout: () => request<void>("POST", "/api/auth/logout"),
@@ -146,6 +158,7 @@ export const api = {
   submitResponse: (surveyId: number, answers: AnswerBody[]) =>
     request<SubmittedResponse>("POST", `/api/open-surveys/${surveyId}/responses`, { answers }),
   getResponse: (id: number) => request<ResponseDetail>("GET", `/api/responses/${id}`),
+  getSummary: (id: number) => request<SurveySummary>("GET", `/api/surveys/${id}/summary`),
 };
 
 export const STATUS_LABELS: Record<SurveyStatus, string> = {
