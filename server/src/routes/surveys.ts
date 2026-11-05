@@ -41,7 +41,7 @@ surveysRouter.get("/", async (req, res, next) => {
     const surveys = await prisma.survey.findMany({
       where: { ownerId: req.user!.id },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      include: { _count: { select: { questions: true } } },
+      include: { _count: { select: { questions: true, responses: true } } },
     });
     res.json({
       data: surveys.map((s) => ({
@@ -51,6 +51,7 @@ surveysRouter.get("/", async (req, res, next) => {
         createdAt: s.createdAt,
         publishedAt: s.publishedAt,
         questionCount: s._count.questions,
+        responseCount: s._count.responses,
       })),
     });
   } catch (err) {

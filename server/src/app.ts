@@ -5,6 +5,7 @@ import { prisma } from "./prisma.js";
 import { authRouter } from "./routes/auth.js";
 import { surveysRouter } from "./routes/surveys.js";
 import { openSurveysRouter } from "./routes/openSurveys.js";
+import { responsesRouter } from "./routes/responses.js";
 
 // Builds the Express application without starting a server, so tests can call it
 // through Supertest (F-08). Feature routes are registered here as they are built.
@@ -42,6 +43,7 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/surveys", surveysRouter);
   app.use("/api/open-surveys", openSurveysRouter);
+  app.use("/api/responses", responsesRouter);
 
   app.use((_req, res) => {
     sendError(res, 404, "NOT_FOUND", "Not found.");

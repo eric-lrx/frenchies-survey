@@ -8,6 +8,7 @@ import NewSurvey from "./pages/owner/NewSurvey.js";
 import SurveyDetail from "./pages/owner/SurveyDetail.js";
 import OpenSurveys from "./pages/respondent/OpenSurveys.js";
 import SurveyPage from "./pages/respondent/SurveyPage.js";
+import ResponseConfirmation from "./pages/respondent/ResponseConfirmation.js";
 
 // Application shell (F-08), sign-in and sign-out (F-01), role navigation and role routes
 // (F-02). The screens of each role are filled by F-03 to F-07.
@@ -36,6 +37,7 @@ export default function App() {
         <Route element={<RoleRoute role="RESPONDENT" />}>
           <Route path="/surveys" element={<OpenSurveys />} />
           <Route path="/surveys/:id" element={<SurveyPage />} />
+          <Route path="/responses/:id" element={<ResponseConfirmation />} />
         </Route>
         <Route path="*" element={<Navigate to={user ? homePath(user.role) : "/login"} replace />} />
       </Routes>
