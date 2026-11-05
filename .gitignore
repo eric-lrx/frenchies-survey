@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+coverage/
+
+# environment and secrets: only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# local databases and dumps
+db-backups/
+*.sql.gz
+*.dump
+
+# test output
+test-results/
+playwright-report/
+playwright/.cache/
+
+# editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.log
