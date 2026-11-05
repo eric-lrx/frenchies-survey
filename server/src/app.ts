@@ -1,6 +1,6 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { HttpError, sendError } from "./http.js";
 import { prisma } from "./prisma.js";
 import { authRouter } from "./routes/auth.js";
@@ -56,7 +56,8 @@ export function createApp(options: AppOptions = {}) {
   app.use("/api/responses", responsesRouter);
 
   if (options.staticDir) {
-    const staticDir = options.staticDir;
+    // sendFile needs an absolute path; STATIC_DIR may be relative to the working directory.
+    const staticDir = resolve(options.staticDir);
     // Built assets have content hashes in their names, so they can be cached for long.
     app.use("/assets", express.static(join(staticDir, "assets"), { immutable: true, maxAge: "1y" }));
     // A missing asset is a 404, never the app shell (a stale page would load HTML as code).
