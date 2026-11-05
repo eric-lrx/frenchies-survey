@@ -4,6 +4,7 @@ import { prisma } from "../prisma.js";
 import { parseId, sendError } from "../http.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { validateSurveyInput } from "../surveys/rules.js";
+import { computeSummary } from "../surveys/summary.js";
 
 // Survey Owner routes: F-03 (create, list, detail). Every query is filtered by the session
 // owner, so another owner's survey is "not found", exactly like a missing one (F-02).
@@ -119,6 +120,50 @@ surveysRouter.post("/:id/publish", async (req, res, next) => {
     } else {
       sendError(res, 409, "SURVEY_HAS_NO_QUESTIONS", "Add at least one question before publishing.");
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// F-07: the owner's aggregate summary, in any status. Three aggregate queries (response
+// count, rating counts by question and value, option counts), not one per question or per
+// response (contract section 1).
+surveysRouter.get("/:id/summary", async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    const survey = id === null ? null : await prisma.survey.findFirst({ where: { id, ownerId: req.user!.id }, include: SURVEY_DETAIL });
+    if (!survey) {
+      surveyNotFound(res);
+      return;
+    }
+    const questionIds = survey.questions.map((q) => q.id);
+    const [responseCount, ratingRows, optionRows] = await Promise.all([
+      prisma.response.count({ where: { surveyId: survey.id } }),
+      prisma.answer.groupBy({
+        by: ["questionId", "ratingValue"],
+        where: { questionId: { in: questionIds }, ratingValue: { not: null } },
+        _count: { _all: true },
+      }),
+      prisma.answer.groupBy({
+        by: ["optionId"],
+        where: { questionId: { in: questionIds }, optionId: { not: null } },
+        _count: { _all: true },
+      }),
+    ]);
+    res.json({
+      data: {
+        surveyId: survey.id,
+        title: survey.title,
+        status: survey.status,
+        responseCount,
+        questions: computeSummary({
+          questions: survey.questions,
+          responseCount,
+          ratingCounts: ratingRows.map((r) => ({ questionId: r.questionId, value: r.ratingValue!, count: r._count._all })),
+          optionCounts: optionRows.map((r) => ({ optionId: r.optionId!, count: r._count._all })),
+        }),
+      },
+    });
   } catch (err) {
     next(err);
   }

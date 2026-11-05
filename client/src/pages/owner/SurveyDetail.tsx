@@ -5,7 +5,8 @@ import StatusBadge from "../../components/StatusBadge.js";
 import { Loading, LoadError } from "../../components/Feedback.js";
 import ConfirmDialog from "../../components/ConfirmDialog.js";
 
-// F-03 survey detail, read-only (contract section 3), with publication (F-04).
+// F-03 survey detail, read-only (contract section 3), with publication (F-04) and a link
+// to the results (F-07).
 export default function SurveyDetail() {
   const { id } = useParams();
   const [survey, setSurvey] = useState<Survey | null>(null);
@@ -77,10 +78,14 @@ export default function SurveyDetail() {
           {survey.title}
         </h1>
         <StatusBadge status={survey.status} />
-        {survey.status === "DRAFT" && (
+        {survey.status === "DRAFT" ? (
           <button ref={publishButton} type="button" className="btn btn-cafe btn-sm ms-auto" onClick={() => setConfirming(true)}>
             Publish
           </button>
+        ) : (
+          <Link to={`/owner/surveys/${survey.id}/summary`} className="btn btn-outline-secondary btn-sm ms-auto">
+            View results
+          </Link>
         )}
       </div>
       <p role="status" className="text-success mb-2">
