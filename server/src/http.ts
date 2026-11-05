@@ -13,6 +13,14 @@ export class HttpError extends Error {
   }
 }
 
+// F-02: a path id must be a positive integer (and fit in a PostgreSQL integer); anything
+// else is answered like an id that does not exist.
+export function parseId(raw: string): number | null {
+  if (!/^[1-9][0-9]*$/.test(raw)) return null;
+  const id = Number(raw);
+  return id <= 2_147_483_647 ? id : null;
+}
+
 export function sendError(res: Response, status: number, code: string, message: string, extra: Record<string, unknown> = {}) {
   res.status(status).json({ error: { code, message, ...extra } });
 }

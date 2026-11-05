@@ -23,6 +23,29 @@ body {
   font-size: 0.9rem;
 }
 
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-nav-link {
+  color: #f3e6d8;
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.app-nav-link:hover {
+  color: #fff;
+}
+
+/* The active page is shown by an underline as well as colour (not colour alone). */
+.app-nav-link.active {
+  color: #fff;
+  border-bottom-color: #f0b46a;
+}
+
 .btn-cafe {
   background: var(--cf-brown);
   border-color: var(--cf-brown);
