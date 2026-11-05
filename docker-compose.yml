@@ -1,0 +1,47 @@
+# Runs the production image locally with PostgreSQL (Lab 5, #24, check C-03).
+#   cp .env.example .env      # then choose your own values
+#   docker compose up --build
+# The app is then on http://localhost:8080. Data lives in the named volume
+# `pgdata`, so it survives `docker compose down` and a rebuild (but not `down -v`).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cafe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: cafe_feedback
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cafe -d cafe_feedback"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # One-shot job, like the Cloud Run migration job: migrations, then the idempotent seed.
+  migrate:
+    build: .
+    image: cafe-feedback:local
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://cafe:${POSTGRES_PASSWORD}@db:5432/cafe_feedback
+      SEED_PASSWORD: ${SEED_PASSWORD:?Set SEED_PASSWORD in .env}
+    command: ["sh", "-c", "prisma migrate deploy && node dist/prisma/seed.js"]
+    restart: "no"
+
+  app:
+    image: cafe-feedback:local
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://cafe:${POSTGRES_PASSWORD}@db:5432/cafe_feedback
+      PORT: "3000"
+    ports:
+      - "8080:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

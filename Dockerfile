@@ -28,6 +28,7 @@ RUN npm prune --omit=dev
 FROM node:24-alpine AS runtime
 RUN apk add --no-cache openssl
 ENV NODE_ENV=production \
+    PATH=/app/node_modules/.bin:$PATH \
     PORT=3000 \
     STATIC_DIR=/app/client/dist \
     TZ=Asia/Bangkok
@@ -39,5 +40,7 @@ COPY --from=build /app/server/prisma ./prisma
 COPY --from=build /app/client/dist /app/client/dist
 USER node
 EXPOSE 3000
+# The migration job overrides the command with:
+#   sh -c "prisma migrate deploy && node dist/prisma/seed.js"
 # `node` is PID 1, so it receives SIGTERM from Cloud Run directly.
 CMD ["node", "dist/src/index.js"]
