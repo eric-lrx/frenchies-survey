@@ -25,7 +25,7 @@ component) and `npm run e2e` (end to end).
 | AC-F08-02 | TEST-F08-02 | `server/tests/seed.db.test.ts` | Not run |
 | AC-F01-01 | TEST-F01-01 | `server/tests/auth.api.test.ts` | Not run |
 | AC-F01-02 | TEST-F01-02, TEST-F01-07, UI-01 | `server/tests/auth.api.test.ts`; `client/tests/Login.test.tsx` | Not run |
-| AC-F01-03 | TEST-F01-03 | `server/tests/auth.api.test.ts` | Not run |
+| AC-F01-03 | TEST-F01-03, TEST-F01-08 | `server/tests/auth.api.test.ts` | Not run |
 | AC-F01-04 | TEST-F01-04, E2E-03 | `server/tests/auth.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
 | AC-F01-05 | TEST-F01-05 | `server/tests/auth.api.test.ts` | Not run |
 | AC-F01-06 | TEST-F01-06 | `server/tests/seed.db.test.ts` | Not run |
@@ -51,7 +51,7 @@ component) and `npm run e2e` (end to end).
 | AC-F07-02 | TEST-F07-02, UNIT-03, UI-04 | `server/tests/summary.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/Summary.test.tsx` | Not run |
 | AC-F07-03 | TEST-F07-03 | `server/tests/summary.api.test.ts` | Not run |
 
-29 acceptance criteria and 44 planned tests: 33 API and DB, 3 unit, 4 UI component, 3 end to end and 1
+29 acceptance criteria and 45 planned tests: 34 API and DB, 3 unit, 4 UI component, 3 end to end and 1
 manual. Every criterion has at least one automated test, except AC-F08-01, which also has a manual check
 because it is about following the README by hand.
 
