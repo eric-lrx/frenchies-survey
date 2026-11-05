@@ -33,7 +33,7 @@ their own contracts.
 |---|---|---|---|
 | BR-01 | F-02, F-07 | 1 | AC-F02-03 / TEST-F02-03 |
 | BR-02 | F-04, F-10 | 1 (publish), 2 (close) | AC-F04-02 / TEST-F04-02; closing in Sprint 2 |
-| BR-03 | F-04, F-09 | Established in 1, verified in 2 | Sprint 1 creation requires one question, so the rule can only be broken once drafts are editable (F-09); its test is in the Sprint 2 contract |
+| BR-03 | F-04, F-09 | 1 | AC-F04-02 / TEST-F04-04 (a draft without questions created directly in the test database); F-09 keeps it tested once drafts are editable |
 | BR-04 | F-09 | 2 | Sprint 1 has no route that edits a question; the rule is tested with F-09 |
 | BR-05 | F-06 | 1 | AC-F06-03, AC-F06-04 / TEST-F06-03, TEST-F06-04 |
 | BR-06 | F-06 | 1 | AC-F06-02, AC-F06-06 / TEST-F06-02, TEST-F06-06 |
@@ -66,10 +66,13 @@ their own contracts.
 - Every requirement above (18 FR, 15 BR, 9 NFR) has a feature and a sprint. None is uncovered.
 - Every Sprint 1 feature (F-01 to F-08) has planned acceptance criteria. Each Sprint 1 criterion has a test,
   and every requirement allocated to Sprint 1 has at least one of them.
-- Two rules (BR-03, BR-04) cannot fail in Sprint 1 because no Sprint 1 route edits a draft. They are
-  allocated to Sprint 2 on purpose, and the reason is recorded here instead of being left out.
+- BR-04 cannot fail in Sprint 1 because no Sprint 1 route edits a question. It is allocated to Sprint 2
+  on purpose, and the reason is recorded here instead of being left out. BR-03 was first allocated the
+  same way, then tested in Sprint 1 (section 5).
 - NFR-08 is verified by Lab 5, not by Sprint 1 tests.
 
 ## 5. Approved changes
 
-None yet. Any change to scope or allocation will be added here with its date and reason.
+| Date | Change | Reason |
+|---|---|---|
+| 2026-11-05 | BR-03 verified in Sprint 1 by TEST-F04-04 instead of Sprint 2 | A draft without questions can be created directly in the test database (F-04 contract v1.1) |

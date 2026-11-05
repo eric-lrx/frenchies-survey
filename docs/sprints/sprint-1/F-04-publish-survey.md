@@ -4,7 +4,7 @@
 |---|---|
 | Requirements | FR-07, BR-02, BR-03 |
 | Depends on | F-03 |
-| Version | 1.0, 2026-11-05 |
+| Version | 1.1, 2026-11-05 (see section 7) |
 
 ## 1. Behaviour
 
@@ -22,7 +22,8 @@ Only DRAFT can be published. Publishing a PUBLISHED or CLOSED survey is rejected
 
 **BR-03.** A survey with no question is refused with 409 `SURVEY_HAS_NO_QUESTIONS`. In Sprint 1 creation
 already requires one question, so this check cannot fail yet. It is implemented now so that Sprint 2 draft
-editing (F-09) cannot bypass it, and it is tested with F-09 (`docs/traceability.md`, section 4).
+editing (F-09) cannot bypass it. It is already tested in Sprint 1 (TEST-F04-04) on a draft without
+questions created directly in the test database.
 
 **Concurrency.** The change is a single conditional update: set status PUBLISHED and `publishedAt` where
 `id`, `ownerId` and `status = DRAFT` all match. If no row is updated, the API reads the survey again: not
@@ -66,6 +67,7 @@ No schema change (`status` and `publishedAt` come from F-03).
 | TEST-F04-01 | AC-F04-01 | API and DB | Owner's DRAFT survey | `POST /api/surveys/:id/publish` | 200; database status PUBLISHED, `publishedAt` not null |
 | TEST-F04-02 | AC-F04-02 | API and DB | Owner's PUBLISHED survey, and a CLOSED one | Publish each | Both 409 `INVALID_TRANSITION` with `currentStatus`; status and `publishedAt` unchanged |
 | TEST-F04-03 | AC-F04-02 | API (concurrency) | Owner's DRAFT survey | Send two publish requests at the same time | One 200 and one 409; `publishedAt` set once |
+| TEST-F04-04 | AC-F04-02 | API and DB | Owner's DRAFT survey with no question, created directly in the test database | Publish it | 409 `SURVEY_HAS_NO_QUESTIONS`; still DRAFT, `publishedAt` null |
 | E2E-01 | AC-F04-01 | End to end | See F-07 | Publish through the dialog | Badge shows PUBLISHED |
 
 ## 7. Revision history
@@ -73,3 +75,4 @@ No schema change (`status` and `publishedAt` come from F-03).
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 1.0 | 2026-11-05 | First version | Written before implementation |
+| 1.1 | 2026-11-05 | BR-03 tested now (TEST-F04-04) instead of in Sprint 2 | A draft without questions can be created directly in the test database, so the rule does not need F-09 to be tested |

@@ -1,15 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError, formatDateTime, type SurveyDetail as Survey } from "../../api.js";
 import StatusBadge from "../../components/StatusBadge.js";
 import { Loading, LoadError } from "../../components/Feedback.js";
+import ConfirmDialog from "../../components/ConfirmDialog.js";
 
-// F-03 survey detail, read-only (contract section 3). Publishing is added by F-04.
+// F-03 survey detail, read-only (contract section 3), with publication (F-04).
 export default function SurveyDetail() {
   const { id } = useParams();
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [publishError, setPublishError] = useState("");
+  const publishButton = useRef<HTMLButtonElement>(null);
 
   const load = useCallback(() => {
     setError("");
@@ -25,6 +31,30 @@ export default function SurveyDetail() {
   }, [id]);
 
   useEffect(load, [load]);
+
+  function closeDialog() {
+    setConfirming(false);
+    // Focus goes back to the button that opened the dialog, if it is still there.
+    requestAnimationFrame(() => publishButton.current?.focus());
+  }
+
+  async function publish() {
+    if (!survey || publishing) return;
+    setPublishing(true);
+    setPublishError("");
+    try {
+      const result = await api.publishSurvey(survey.id);
+      setSurvey({ ...survey, status: result.status, publishedAt: result.publishedAt });
+      setNotice("The survey is published. Respondents can now answer it.");
+      setConfirming(false);
+    } catch (err) {
+      setPublishError(err instanceof ApiError ? err.message : "The survey could not be published.");
+      closeDialog();
+      if (err instanceof ApiError && err.status === 409) load();
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   if (notFound) {
     return (
@@ -47,7 +77,20 @@ export default function SurveyDetail() {
           {survey.title}
         </h1>
         <StatusBadge status={survey.status} />
+        {survey.status === "DRAFT" && (
+          <button ref={publishButton} type="button" className="btn btn-cafe btn-sm ms-auto" onClick={() => setConfirming(true)}>
+            Publish
+          </button>
+        )}
       </div>
+      <p role="status" className="text-success mb-2">
+        {notice}
+      </p>
+      {publishError && (
+        <p role="alert" className="text-danger">
+          {publishError}
+        </p>
+      )}
       <p className="text-body-secondary small mb-3">
         Created {formatDateTime(survey.createdAt)}
         {survey.publishedAt && ` · Published ${formatDateTime(survey.publishedAt)}`}
@@ -74,6 +117,17 @@ export default function SurveyDetail() {
           </li>
         ))}
       </ol>
+
+      {confirming && (
+        <ConfirmDialog
+          title="Publish this survey?"
+          message="Once published, respondents can answer and the questions can no longer be changed."
+          confirmLabel="Publish"
+          busy={publishing}
+          onConfirm={publish}
+          onCancel={closeDialog}
+        />
+      )}
     </section>
   );
 }
