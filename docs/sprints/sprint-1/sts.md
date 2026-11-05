@@ -65,21 +65,24 @@ implementation and the passing run after it are kept with their commit ids for P
 
 ## 4. Release run
 
-Run on 2026-11-05, macOS, Node 24.21.0, PostgreSQL 16, on commit `b8d6954` (branch
-`fix/F-08-prisma-generate`, which is `staging` after PRs #2 to #20 plus the F-08 v1.2 fix). The raw outputs
-are kept for Part F of the deliverable.
+Run on 2026-11-05, macOS, Node 24.21.0, PostgreSQL 16, on commit `ee69fbc` (branch
+`fix/F-08-prisma-generate`: `staging` after PRs #2 to #20, plus the F-08 v1.2 fix and the tests added after
+review). Later commits on this branch change only this file. The release is checked again on the
+`staging → main` merge commit before the tag `v0.1.0`. The raw outputs are kept for Part F of the
+deliverable.
 
 | Command | Commit | Passed | Failed | Skipped |
 |---|---|---|---|---|
-| `npm test` (server: unit, API and DB) | `b8d6954` | 113 | 0 | 0 |
-| `npm test` (client: UI component) | `b8d6954` | 9 | 0 | 0 |
-| `npm run e2e` | `b8d6954` | 4 | 0 | 0 |
-| TEST-F08-01 (manual) | `b8d6954` | 1 | 0 | 0 |
+| `npm test` (server: unit, API and DB) | `ee69fbc` | 114 | 0 | 0 |
+| `npm test` (client: UI component) | `ee69fbc` | 9 | 0 | 0 |
+| `npm run e2e` | `ee69fbc` | 4 | 0 | 0 |
+| TEST-F08-01 (manual) | `b8d6954` (first try on `62a069e` failed) | 1 | 1 | 0 |
 
 Every planned test ID (TEST-F01-01 to TEST-F08-03, UNIT-01 to UNIT-03, UI-01 to UI-04, E2E-01 to E2E-03)
-appears in at least one test title of its planned file, and all of them pass. The 113 server tests are more
+appears in at least one test title of its planned file, and all of them pass. The 114 server tests are more
 than the 35 planned API and DB rows because several rows have one test per case (for example TEST-F03-02 has
-9 validation cases, UNIT-01 has 17). The fourth end-to-end test checks the owner's navigation.
+9 validation cases, UNIT-01 has 17). The fourth end-to-end test checks the owner's navigation. TEST-F08-01 was not repeated after `b8d6954`: the
+later commits change only tests, documentation and `.gitignore`, not the setup steps.
 
 **TEST-F08-01, recorded.** A fresh clone in an empty folder, following the README word for word, with
 separate database names so the development data stayed untouched. The first attempt, on `62a069e`
