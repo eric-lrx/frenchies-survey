@@ -89,6 +89,40 @@ surveysRouter.post("/", async (req, res, next) => {
   }
 });
 
+// F-04: DRAFT -> PUBLISHED (BR-02), only with at least one question (BR-03). One conditional
+// update, so two simultaneous requests cannot both publish; when it updates nothing, the
+// survey is read again to give the precise reason.
+surveysRouter.post("/:id/publish", async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      surveyNotFound(res);
+      return;
+    }
+    const ownerId = req.user!.id;
+    const now = new Date();
+    const { count } = await prisma.survey.updateMany({
+      where: { id, ownerId, status: "DRAFT", questions: { some: {} } },
+      data: { status: "PUBLISHED", publishedAt: now },
+    });
+    if (count === 1) {
+      res.json({ data: { id, status: "PUBLISHED", publishedAt: now } });
+      return;
+    }
+
+    const survey = await prisma.survey.findFirst({ where: { id, ownerId }, select: { status: true } });
+    if (!survey) {
+      surveyNotFound(res);
+    } else if (survey.status !== "DRAFT") {
+      sendError(res, 409, "INVALID_TRANSITION", "Only a draft survey can be published.", { currentStatus: survey.status });
+    } else {
+      sendError(res, 409, "SURVEY_HAS_NO_QUESTIONS", "Add at least one question before publishing.");
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 surveysRouter.get("/:id", async (req, res, next) => {
   try {
     const id = parseId(req.params.id);

@@ -102,6 +102,8 @@ export const api = {
   listSurveys: () => request<SurveyListItem[]>("GET", "/api/surveys"),
   createSurvey: (body: NewSurveyBody) => request<SurveyDetail>("POST", "/api/surveys", body),
   getSurvey: (id: number) => request<SurveyDetail>("GET", `/api/surveys/${id}`),
+  publishSurvey: (id: number) =>
+    request<{ id: number; status: SurveyStatus; publishedAt: string }>("POST", `/api/surveys/${id}/publish`),
 };
 
 export const STATUS_LABELS: Record<SurveyStatus, string> = {
