@@ -9,6 +9,7 @@ export const PROTECTED_ROUTES: Route[] = [
   { method: "get", path: "/api/surveys" },
   { method: "post", path: "/api/surveys" },
   { method: "get", path: "/api/surveys/1" },
+  { method: "post", path: "/api/surveys/1/publish" },
 ];
 
 // Survey Owner routes: a Respondent gets 403 on each (TEST-F02-01).
@@ -16,7 +17,11 @@ export const OWNER_ROUTES: Route[] = [
   { method: "get", path: "/api/surveys" },
   { method: "post", path: "/api/surveys" },
   { method: "get", path: "/api/surveys/:id" },
+  { method: "post", path: "/api/surveys/:id/publish" },
 ];
 
 // Owner routes on one survey: another owner gets 404 and no data (TEST-F02-03).
-export const OWNED_SURVEY_ROUTES: Route[] = [{ method: "get", path: "/api/surveys/:id" }];
+export const OWNED_SURVEY_ROUTES: Route[] = [
+  { method: "get", path: "/api/surveys/:id" },
+  { method: "post", path: "/api/surveys/:id/publish" },
+];
