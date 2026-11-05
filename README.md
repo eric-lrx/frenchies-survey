@@ -22,6 +22,7 @@ npm run db:migrate
 npm run db:seed
 npm run dev                               # UI on http://localhost:5173, API on http://localhost:3000
 npm test                                  # in another terminal
+npx playwright install chromium && npm run e2e
 ```
 
 `npm install` also generates the Prisma client. The allowed install scripts (Prisma engines and esbuild)
@@ -45,6 +46,7 @@ Never commit `server/.env`. Only `server/.env.example` is tracked.
 |---|---|
 | `npm run dev` | API and UI together, with reload on change |
 | `npm test` | Server tests (unit, API and database, on the test database), then client tests |
+| `npm run e2e` | Playwright end-to-end tests on the seeded development database (starts the servers if needed) |
 | `npm run build` | Compiles the server and builds the client |
 | `npm run db:migrate` | Applies Prisma migrations to the development database |
 | `npm run db:seed` | Creates or updates the demo data (safe to run again) |

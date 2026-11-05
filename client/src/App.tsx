@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
-import { homePath, ROLE_LABELS } from "./api.js";
+import { Navigate, NavLink, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { homePath, ROLE_LABELS, type Role } from "./api.js";
 import { useAuth } from "./auth/AuthContext.js";
 import Login from "./pages/Login.js";
 
-// Application shell (F-08) with sign-in and sign-out (F-01). Role navigation and route
-// guards per role arrive with F-02; the role home screens are filled by F-03 and F-05.
+// Application shell (F-08), sign-in and sign-out (F-01), role navigation and role routes
+// (F-02). The screens of each role are filled by F-03 to F-07.
 export default function App() {
   const { user, loading } = useAuth();
 
@@ -23,8 +23,11 @@ export default function App() {
     <Shell>
       <Routes>
         <Route path="/login" element={user ? <Navigate to={homePath(user.role)} replace /> : <Login />} />
-        <Route element={user ? <Outlet /> : <Navigate to="/login" replace />}>
+        <Route element={<RoleRoute role="SURVEY_OWNER" />}>
           <Route path="/owner/surveys" element={<h1 className="h4">My surveys</h1>} />
+          <Route path="/owner/surveys/new" element={<h1 className="h4">New survey</h1>} />
+        </Route>
+        <Route element={<RoleRoute role="RESPONDENT" />}>
           <Route path="/surveys" element={<h1 className="h4">Open surveys</h1>} />
         </Route>
         <Route path="*" element={<Navigate to={user ? homePath(user.role) : "/login"} replace />} />
@@ -32,6 +35,23 @@ export default function App() {
     </Shell>
   );
 }
+
+// A route of the other role sends the user to their own home; without a session, to the
+// login screen. Convenience only: the API refuses the calls anyway (F-02 contract, section 3).
+function RoleRoute({ role }: { role: Role }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== role) return <Navigate to={homePath(user.role)} replace />;
+  return <Outlet />;
+}
+
+const NAV_LINKS: Record<Role, { to: string; label: string }[]> = {
+  SURVEY_OWNER: [
+    { to: "/owner/surveys", label: "My surveys" },
+    { to: "/owner/surveys/new", label: "New survey" },
+  ],
+  RESPONDENT: [{ to: "/surveys", label: "Open surveys" }],
+};
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -60,10 +80,19 @@ function Header() {
   return (
     <header className="app-header">
       <div className="container d-flex flex-wrap align-items-center gap-3 py-2">
-        <span className="app-brand me-auto">Café Feedback</span>
+        <span className="app-brand">Café Feedback</span>
+        {user && (
+          <nav aria-label="Main" className="app-nav me-auto">
+            {NAV_LINKS[user.role].map((link) => (
+              <NavLink key={link.to} to={link.to} end className="app-nav-link">
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
         {user && (
           <>
-            <span className="app-user">
+            <span className="app-user ms-auto">
               {user.name} — {ROLE_LABELS[user.role]}
             </span>
             <button type="button" className="btn btn-sm btn-outline-light" onClick={handleLogout} disabled={busy}>

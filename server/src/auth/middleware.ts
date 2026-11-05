@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import type { Role } from "@prisma/client";
 import { SESSION_COOKIE, findSessionUser, type SessionUser } from "./sessions.js";
 import { sendError } from "../http.js";
 
@@ -28,4 +29,16 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   } catch (err) {
     next(err);
   }
+}
+
+// F-02: each route declares the role it needs; it always runs after requireAuth, so a
+// missing session is a 401 and only a wrong role is a 403.
+export function requireRole(role: Role) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.user?.role !== role) {
+      sendError(res, 403, "FORBIDDEN", "You do not have access to this action.");
+      return;
+    }
+    next();
+  };
 }

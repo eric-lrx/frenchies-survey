@@ -51,6 +51,8 @@ component) and `npm run e2e` (end to end).
 | AC-F07-02 | TEST-F07-02, UNIT-03, UI-04 | `server/tests/summary.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/Summary.test.tsx` | Not run |
 | AC-F07-03 | TEST-F07-03 | `server/tests/summary.api.test.ts` | Not run |
 
+TEST-F02-01 to TEST-F02-05 are extended by F-03 to F-07 as their routes appear (F-02 contract v1.1, section 6).
+
 29 acceptance criteria and 45 planned tests: 34 API and DB, 3 unit, 4 UI component, 3 end to end and 1
 manual. Every criterion has at least one automated test, except AC-F08-01, which also has a manual check
 because it is about following the README by hand.

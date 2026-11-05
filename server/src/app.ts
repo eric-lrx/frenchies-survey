@@ -9,6 +9,17 @@ import { authRouter } from "./routes/auth.js";
 export function createApp() {
   const app = express();
   app.disable("x-powered-by");
+
+  // F-02: a request that carries a body must send JSON. With the SameSite=Lax cookie this
+  // blocks cross-site HTML form posts. Body-less requests (logout, publish) pass.
+  app.use((req, res, next) => {
+    const hasBody = req.headers["transfer-encoding"] !== undefined || Number(req.headers["content-length"] ?? 0) > 0;
+    if (hasBody && !req.is("application/json")) {
+      sendError(res, 415, "UNSUPPORTED_MEDIA_TYPE", "Send the request body as JSON.");
+      return;
+    }
+    next();
+  });
   app.use(express.json({ limit: "100kb" }));
   app.use(cookieParser());
 

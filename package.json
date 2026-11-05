@@ -15,10 +15,13 @@
     "build": "npm run build -w server && npm run build -w client",
     "test": "npm run test -w server && npm run test -w client",
     "db:migrate": "npm run db:migrate -w server",
-    "db:seed": "npm run db:seed -w server"
+    "db:seed": "npm run db:seed -w server",
+    "e2e": "playwright test"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "@playwright/test": "^1.62.1",
+    "concurrently": "^9.1.0",
+    "dotenv": "^17.4.2"
   },
   "allowScripts": {
     "@prisma/client@5.22.0": true,
