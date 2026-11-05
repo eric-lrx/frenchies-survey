@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateAnswers, validateSurveyInput } from "../../src/surveys/rules.js";
+import { computeSummary } from "../../src/surveys/summary.js";
 
 // UNIT-01 (AC-F03-02): the survey validation rules of the F-03 contract, section 1.
 const rating = (text = "How was it?") => ({ text, type: "RATING" });
@@ -90,5 +91,34 @@ describe("UNIT-02 validateAnswers", () => {
     const result = validateAnswers(questions, body);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.fields[field]).toBe(message);
+  });
+});
+
+// UNIT-03 (AC-F07-01, AC-F07-02): the calculation rules of the F-07 contract, section 1.
+describe("UNIT-03 computeSummary", () => {
+  const questions = [
+    { id: 1, position: 1, text: "Rate us", type: "RATING" as const, options: [] },
+    { id: 2, position: 2, text: "Pick one", type: "CHOICE" as const, options: [{ id: 10, position: 1, label: "A" }, { id: 11, position: 2, label: "B" }] },
+  ];
+  const ratingsOf = (values: number[]) =>
+    [1, 2, 3, 4, 5].map((value) => ({ questionId: 1, value, count: values.filter((v) => v === value).length })).filter((r) => r.count > 0);
+
+  it.each([
+    [[4, 5], 4.5],
+    [[1, 2, 2], 1.7],
+    [[3, 4, 4, 4], 3.8],
+    [[5, 4, 4], 4.3],
+    [[], null],
+  ])("averages %j as %s (integer arithmetic, half up, null without answers)", (values, expected) => {
+    const result = computeSummary({ questions, responseCount: values.length, ratingCounts: ratingsOf(values), optionCounts: [] });
+    expect(result[0]).toMatchObject({ type: "RATING", average: expected });
+  });
+
+  it("always lists the five rating values and every option, with zero where nobody chose them", () => {
+    const result = computeSummary({ questions, responseCount: 1, ratingCounts: [{ questionId: 1, value: 2, count: 1 }], optionCounts: [{ optionId: 11, count: 1 }] });
+    expect(result).toEqual([
+      { questionId: 1, position: 1, text: "Rate us", type: "RATING", average: 2, distribution: { "1": 0, "2": 1, "3": 0, "4": 0, "5": 0 } },
+      { questionId: 2, position: 2, text: "Pick one", type: "CHOICE", options: [{ optionId: 10, label: "A", count: 0 }, { optionId: 11, label: "B", count: 1 }] },
+    ]);
   });
 });
