@@ -1,0 +1,11 @@
+// Café Feedback data model. Each feature adds its tables through its own migration
+// (docs/system-sds.md, section 2, and the Sprint 1 contracts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

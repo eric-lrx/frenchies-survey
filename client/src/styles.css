@@ -1,0 +1,30 @@
+:root {
+  --cf-brown: #5b3a29;
+  --cf-cream: #fbf6ef;
+  --cf-text: #2b1d16;
+}
+
+body {
+  background: var(--cf-cream);
+  color: var(--cf-text);
+}
+
+.app-header {
+  background: var(--cf-brown);
+  color: #fff;
+}
+
+.app-brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+/* Visible keyboard focus on every interactive element (NFR-07). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #c47f2c;
+  outline-offset: 2px;
+}
