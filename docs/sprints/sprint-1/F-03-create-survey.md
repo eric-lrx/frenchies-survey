@@ -4,7 +4,7 @@
 |---|---|
 | Requirements | FR-04, FR-05, BR-12 (and BR-01 for ownership) |
 | Depends on | F-02 |
-| Version | 1.0, 2026-11-05 |
+| Version | 1.1, 2026-11-05 (see section 7) |
 
 ## 1. Behaviour
 
@@ -52,13 +52,14 @@ and option positions follow the order of the request, starting at 1.
 
 **`GET /api/surveys`** (Survey Owner): the owner's own surveys, newest first.
 `200 {"data":[{"id","title","status","createdAt","publishedAt","questionCount","responseCount"}]}`
+(`responseCount` is added by F-06, when responses exist.)
 
 **`GET /api/surveys/:id`** (Survey Owner, own survey): the same shape as the 201 body, or 404.
 
 ## 3. UI
 
 - **My surveys** (`/owner/surveys`): a table of title, status badge (text, not colour only), number of
-  responses and creation date. Each title links to the detail page. Empty state: "You have no surveys yet"
+  questions and creation date (the number of responses is added by F-06). Each title links to the detail page. Empty state: "You have no surveys yet"
   with a "New survey" button. Loading and error states as in the system SDS.
 - **New survey** (`/owner/surveys/new`): title and description fields, a question list where each question
   has a text, a type selector and, for a choice question, an option list with "Add option" and "Remove"
@@ -101,3 +102,4 @@ Migration `surveys`:
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 1.0 | 2026-11-05 | First version | Written before implementation |
+| 1.1 | 2026-11-05 | `responseCount` in the list and the responses column move to F-06 | The `Response` table does not exist before F-06; a constant 0 would be a placeholder, not data |

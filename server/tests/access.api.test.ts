@@ -7,6 +7,8 @@ import { prisma } from "../src/prisma.js";
 import { requireAuth, requireRole } from "../src/auth/middleware.js";
 import { resetDatabase, tableCounts } from "./helpers/db.js";
 import { createUser, loginCookie } from "./helpers/users.js";
+import { OWNED_SURVEY_ROUTES, OWNER_ROUTES } from "./helpers/routes.js";
+import { VALID_SURVEY_BODY, createSurvey } from "./helpers/surveys.js";
 
 // F-02 Role-based access and ownership (docs/sprints/sprint-1/F-02-access-control.md, v1.1).
 const app = createApp();
@@ -60,6 +62,53 @@ describe("requireRole", () => {
     // A role change in the database applies to the very next request of the same session.
     await prisma.user.update({ where: { id: user.id }, data: { role: "SURVEY_OWNER" } });
     expect((await request(probe).get("/owner-only").set("Cookie", cookie)).status).toBe(200);
+  });
+});
+
+describe("Owner routes", () => {
+  it("TEST-F02-01 answers every Survey Owner route with 403 for a Respondent, changing nothing", async () => {
+    const owner = await createUser("SURVEY_OWNER", { email: "owner@test.local" });
+    const survey = await createSurvey(owner.id);
+    await createUser("RESPONDENT", { email: "alice@test.local" });
+    const cookie = await loginCookie(app, "alice@test.local");
+    const before = await tableCounts();
+
+    for (const route of OWNER_ROUTES) {
+      const path = route.path.replace(":id", String(survey.id));
+      const res = await request(app)[route.method](path).set("Cookie", cookie).send(route.method === "post" ? VALID_SURVEY_BODY : undefined);
+      expect(res.status, `${route.method.toUpperCase()} ${path}`).toBe(403);
+      expect(res.body.error.code).toBe("FORBIDDEN");
+    }
+    expect(await tableCounts()).toEqual(before);
+    expect((await prisma.survey.findUniqueOrThrow({ where: { id: survey.id } })).status).toBe("DRAFT");
+  });
+
+  it("TEST-F02-03 answers another owner's survey with 404 and no survey data, leaving it unchanged", async () => {
+    const ownerA = await createUser("SURVEY_OWNER", { email: "a@test.local" });
+    const survey = await createSurvey(ownerA.id, { title: "Owner A private survey" });
+    await createUser("SURVEY_OWNER", { email: "b@test.local" });
+    const cookieB = await loginCookie(app, "b@test.local");
+
+    for (const route of OWNED_SURVEY_ROUTES) {
+      const path = route.path.replace(":id", String(survey.id));
+      const res = await request(app)[route.method](path).set("Cookie", cookieB);
+      expect(res.status, `${route.method.toUpperCase()} ${path}`).toBe(404);
+      expect(res.body).toEqual({ error: { code: "NOT_FOUND", message: "Survey not found." } });
+      expect(JSON.stringify(res.body)).not.toContain("Owner A private survey");
+    }
+    expect((await prisma.survey.findUniqueOrThrow({ where: { id: survey.id } })).status).toBe("DRAFT");
+  });
+
+  it("TEST-F02-05 answers an invalid id and an unknown id with the same 404 as another owner's survey", async () => {
+    await createUser("SURVEY_OWNER", { email: "owner@test.local" });
+    const cookie = await loginCookie(app, "owner@test.local");
+
+    const invalid = await request(app).get("/api/surveys/abc").set("Cookie", cookie);
+    const unknown = await request(app).get("/api/surveys/999999").set("Cookie", cookie);
+    for (const res of [invalid, unknown]) {
+      expect(res.status).toBe(404);
+      expect(res.body).toEqual({ error: { code: "NOT_FOUND", message: "Survey not found." } });
+    }
   });
 });
 

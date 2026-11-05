@@ -51,12 +51,76 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return payload.data as T;
 }
 
+export type SurveyStatus = "DRAFT" | "PUBLISHED" | "CLOSED";
+export type QuestionType = "RATING" | "CHOICE";
+
+export interface SurveyListItem {
+  id: number;
+  title: string;
+  status: SurveyStatus;
+  createdAt: string;
+  publishedAt: string | null;
+  questionCount: number;
+}
+
+export interface QuestionOption {
+  id: number;
+  position: number;
+  label: string;
+}
+
+export interface Question {
+  id: number;
+  position: number;
+  text: string;
+  type: QuestionType;
+  options: QuestionOption[];
+}
+
+export interface SurveyDetail {
+  id: number;
+  title: string;
+  description: string | null;
+  status: SurveyStatus;
+  ownerId: number;
+  createdAt: string;
+  publishedAt: string | null;
+  questions: Question[];
+}
+
+export interface NewSurveyBody {
+  title: string;
+  description: string | null;
+  questions: { text: string; type: QuestionType; options?: string[] }[];
+}
+
 export const api = {
   login: (email: string, password: string) => request<User>("POST", "/api/auth/login", { email, password }),
   logout: () => request<void>("POST", "/api/auth/logout"),
   me: () => request<User>("GET", "/api/auth/me"),
   session: () => request<User | null>("GET", "/api/auth/session"),
+  listSurveys: () => request<SurveyListItem[]>("GET", "/api/surveys"),
+  createSurvey: (body: NewSurveyBody) => request<SurveyDetail>("POST", "/api/surveys", body),
+  getSurvey: (id: number) => request<SurveyDetail>("GET", `/api/surveys/${id}`),
 };
+
+export const STATUS_LABELS: Record<SurveyStatus, string> = {
+  DRAFT: "Draft",
+  PUBLISHED: "Published",
+  CLOSED: "Closed",
+};
+
+// Dates are stored in UTC and shown in the café's time zone (D-08).
+export function formatDateTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Bangkok",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
 
 export function homePath(role: Role): string {
   return role === "SURVEY_OWNER" ? "/owner/surveys" : "/surveys";

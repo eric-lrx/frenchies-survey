@@ -25,6 +25,7 @@ model User {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   sessions     Session[]
+  surveys      Survey[]
 }
 
 // F-01: server-side sessions (D-04). Only the SHA-256 hash of the cookie token is stored,
@@ -38,4 +39,56 @@ model Session {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+// F-03: survey lifecycle DRAFT -> PUBLISHED -> CLOSED (BR-02).
+enum SurveyStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+// F-03: Sprint 1 question types (D-05); TEXT arrives in Sprint 2.
+enum QuestionType {
+  RATING
+  CHOICE
+}
+
+model Survey {
+  id          Int          @id @default(autoincrement())
+  ownerId     Int
+  owner       User         @relation(fields: [ownerId], references: [id])
+  title       String
+  description String?
+  status      SurveyStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  publishedAt DateTime?
+  closedAt    DateTime?
+  questions   Question[]
+
+  @@index([ownerId])
+  @@index([status])
+}
+
+model Question {
+  id       Int              @id @default(autoincrement())
+  surveyId Int
+  survey   Survey           @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  position Int
+  text     String
+  type     QuestionType
+  options  QuestionOption[]
+
+  @@unique([surveyId, position])
+}
+
+model QuestionOption {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  position   Int
+  label      String
+
+  @@unique([questionId, position])
+  @@unique([questionId, label])
 }
