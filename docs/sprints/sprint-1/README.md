@@ -32,6 +32,7 @@ checklist the release must pass.
 | POST | `/api/auth/login` | anyone | F-01 |
 | POST | `/api/auth/logout` | signed in | F-01 |
 | GET | `/api/auth/me` | signed in | F-01 |
+| GET | `/api/auth/session` | anyone (describes the caller's own session) | F-01 |
 | GET | `/api/surveys` | Survey Owner | F-03 |
 | POST | `/api/surveys` | Survey Owner | F-03 |
 | GET | `/api/surveys/:id` | Survey Owner, own survey | F-03 |

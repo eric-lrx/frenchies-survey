@@ -1,6 +1,8 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 import { HttpError, sendError } from "./http.js";
+import { prisma } from "./prisma.js";
+import { authRouter } from "./routes/auth.js";
 
 // Builds the Express application without starting a server, so tests can call it
 // through Supertest (F-08). Feature routes are registered here as they are built.
@@ -13,6 +15,18 @@ export function createApp() {
   app.get("/api/health", (_req, res) => {
     res.json({ data: { status: "ok" } });
   });
+
+  // Readiness: the database answers a trivial query (F-08 contract v1.1, added with F-01).
+  app.get("/api/ready", async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({ data: { status: "ready" } });
+    } catch {
+      sendError(res, 503, "NOT_READY", "The database is not reachable.");
+    }
+  });
+
+  app.use("/api/auth", authRouter);
 
   app.use((_req, res) => {
     sendError(res, 404, "NOT_FOUND", "Not found.");

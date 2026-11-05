@@ -19,6 +19,37 @@ body {
   font-size: 1.15rem;
 }
 
+.app-user {
+  font-size: 0.9rem;
+}
+
+.btn-cafe {
+  background: var(--cf-brown);
+  border-color: var(--cf-brown);
+  color: #fff;
+}
+
+.btn-cafe:hover,
+.btn-cafe:focus-visible {
+  background: #4a2f21;
+  border-color: #4a2f21;
+  color: #fff;
+}
+
+.btn-cafe:disabled {
+  background: #8a6a59;
+  border-color: #8a6a59;
+  color: #fff;
+}
+
+.login-card {
+  max-width: 24rem;
+  background: #fff;
+  border: 1px solid #e6dccf;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
 /* Visible keyboard focus on every interactive element (NFR-07). */
 a:focus-visible,
 button:focus-visible,

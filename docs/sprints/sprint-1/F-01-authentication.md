@@ -4,7 +4,7 @@
 |---|---|
 | Requirements | FR-01, FR-02, FR-03, BR-15, NFR-01, NFR-03 |
 | Depends on | F-08 |
-| Version | 1.0, 2026-11-05 |
+| Version | 1.1, 2026-11-05 (see section 7) |
 
 ## 1. Behaviour
 
@@ -46,6 +46,11 @@ cookie. A failed sign-in never says whether the email exists.
 
 **`GET /api/auth/me`** (signed in): `200 {"data":{"id","name","email","role"}}`, or `401 UNAUTHENTICATED`.
 
+**`GET /api/auth/session`** (public): always `200`, with `{"data":{"id","name","email","role"}}` for a
+valid session and `{"data":null}` otherwise (no cookie, unknown, expired, or deactivated user). The UI calls
+it on page load, so a visitor who is not signed in does not produce a failed request in the browser
+console. It reveals nothing a visitor does not already know: it only describes the caller's own session.
+
 **`POST /api/auth/logout`** (signed in): `204` with the cookie cleared, or `401 UNAUTHENTICATED`.
 
 ## 3. UI
@@ -55,8 +60,8 @@ cookie. A failed sign-in never says whether the email exists.
   entered email stays in the field after a failure.
 - **After sign-in.** A Survey Owner lands on "My surveys" and a Respondent on "Open surveys".
 - **Header.** The user's name and role, and a "Sign out" button.
-- **Page load.** The application calls `GET /api/auth/me` to restore the session. While it waits it shows a
-  loading state. Any 401 from the API sends the user back to the login screen.
+- **Page load.** The application calls `GET /api/auth/session` to restore the session. While it waits it
+  shows a loading state. Any 401 from the API sends the user back to the login screen.
 
 ## 4. Data
 
@@ -88,6 +93,7 @@ Migration `init_auth`:
 | TEST-F01-05 | AC-F01-05 | API | No cookie | Call each protected route in the API overview | Every call 401 `UNAUTHENTICATED`; no `title`, `answers` or `questions` key in any body |
 | TEST-F01-06 | AC-F01-06 | Integration (DB) | Seeded database | Read every `passwordHash` | Each starts with `$2`, has a cost of 10 or more, and none equals `SEED_PASSWORD` |
 | TEST-F01-07 | AC-F01-02 | API (boundary) | none | Login with an empty body, then with an empty password | 400 `VALIDATION_ERROR` |
+| TEST-F01-08 | AC-F01-03 | API | No cookie, an expired session, then a valid session | `GET /api/auth/session` each time | 200 with `data: null` twice, then 200 with the identity and no password hash |
 | UI-01 | AC-F01-02 | UI component | API mocked to answer 401 | Submit the login form | Generic message shown, email kept, button enabled again |
 
 ## 7. Revision history
@@ -95,3 +101,4 @@ Migration `init_auth`:
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 1.0 | 2026-11-05 | First version | Written before implementation |
+| 1.1 | 2026-11-05 | `GET /api/auth/session` added for the page-load check; TEST-F01-08 added | The browser check of the first implementation logged a failed 401 request on every page load while signed out (5 console errors in one journey). `/api/auth/me` keeps its 401 for AC-F01-05 |
