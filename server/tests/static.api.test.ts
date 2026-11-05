@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { createApp } from "../src/app.js";
 
 // Lab 5 (#23): in the container, one Express process serves the API and the built React
@@ -54,6 +54,12 @@ describe("Serving the built web app (STATIC_DIR)", () => {
   it("still answers the API normally when the web app is served", async () => {
     const res = await request(createApp({ staticDir })).get("/api/health");
     expect(res.body).toEqual({ data: { status: "ok" } });
+  });
+
+  it("accepts a STATIC_DIR relative to the working directory, as in STATIC_DIR=../client/dist", async () => {
+    const res = await request(createApp({ staticDir: relative(process.cwd(), staticDir) })).get("/owner/surveys");
+    expect(res.status).toBe(200);
+    expect(res.text).toContain("<div id=root>");
   });
 
   it("serves no web app when STATIC_DIR is not set (development uses the Vite server)", async () => {
