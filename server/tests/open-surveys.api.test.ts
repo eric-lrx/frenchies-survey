@@ -4,11 +4,12 @@ import { createApp } from "../src/app.js";
 import { prisma } from "../src/prisma.js";
 import { resetDatabase } from "./helpers/db.js";
 import { createUser, loginCookie } from "./helpers/users.js";
-import { createSurvey } from "./helpers/surveys.js";
+import { createResponse, createSurvey } from "./helpers/surveys.js";
 
 // F-05 Browse open surveys (docs/sprints/sprint-1/F-05-browse-open-surveys.md, v1.1).
 const app = createApp();
 const FORBIDDEN_KEYS = ["ownerId", "responseCount", "status", "answers"];
+let respondentId: number;
 
 let cookie: string;
 let draft: Awaited<ReturnType<typeof createSurvey>>;
@@ -25,7 +26,7 @@ beforeEach(async () => {
   closed = await createSurvey(owner.id, { title: "Winter drinks", status: "CLOSED" });
   await prisma.survey.update({ where: { id: older.id }, data: { publishedAt: new Date("2026-11-01T02:00:00Z") } });
   await prisma.survey.update({ where: { id: newer.id }, data: { publishedAt: new Date("2026-11-03T02:00:00Z") } });
-  await createUser("RESPONDENT", { email: "alice@test.local" });
+  respondentId = (await createUser("RESPONDENT", { email: "alice@test.local" })).id;
   cookie = await loginCookie(app, "alice@test.local");
 });
 
@@ -48,6 +49,21 @@ describe("GET /api/open-surveys", () => {
       questionCount: 2,
     });
     expectNoForbiddenKeys(res.body);
+  });
+});
+
+describe("alreadyResponded (added with F-06, F-05 contract v1.1)", () => {
+  it("TEST-F05-01 is true only for the surveys this respondent answered, in the list and on the survey", async () => {
+    await createResponse(older, respondentId);
+    const bruno = await createUser("RESPONDENT", { email: "bruno@test.local" });
+    await createResponse(newer, bruno.id);
+
+    const list = await request(app).get("/api/open-surveys").set("Cookie", cookie);
+    const flags = Object.fromEntries(list.body.data.map((s: { id: number; alreadyResponded: boolean }) => [s.id, s.alreadyResponded]));
+    expect(flags).toEqual({ [older.id]: true, [newer.id]: false });
+
+    const page = await request(app).get(`/api/open-surveys/${older.id}`).set("Cookie", cookie);
+    expect(page.body.data.alreadyResponded).toBe(true);
   });
 });
 

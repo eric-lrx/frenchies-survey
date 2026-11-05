@@ -61,6 +61,7 @@ export interface SurveyListItem {
   createdAt: string;
   publishedAt: string | null;
   questionCount: number;
+  responseCount: number;
 }
 
 export interface QuestionOption {
@@ -100,13 +101,34 @@ export interface OpenSurvey {
   description: string | null;
   publishedAt: string;
   questionCount: number;
+  alreadyResponded: boolean;
 }
 
 export interface OpenSurveyDetail {
   id: number;
   title: string;
   description: string | null;
+  alreadyResponded: boolean;
   questions: Question[];
+}
+
+export type AnswerBody = { questionId: number; ratingValue: number } | { questionId: number; optionId: number };
+
+export interface SubmittedResponse {
+  id: number;
+  surveyId: number;
+  submittedAt: string;
+}
+
+export interface ResponseDetail {
+  id: number;
+  surveyId: number;
+  surveyTitle: string;
+  submittedAt: string;
+  answers: (
+    | { questionId: number; questionText: string; type: "RATING"; ratingValue: number }
+    | { questionId: number; questionText: string; type: "CHOICE"; optionId: number; optionLabel: string }
+  )[];
 }
 
 export const api = {
@@ -121,6 +143,9 @@ export const api = {
     request<{ id: number; status: SurveyStatus; publishedAt: string }>("POST", `/api/surveys/${id}/publish`),
   listOpenSurveys: () => request<OpenSurvey[]>("GET", "/api/open-surveys"),
   getOpenSurvey: (id: number) => request<OpenSurveyDetail>("GET", `/api/open-surveys/${id}`),
+  submitResponse: (surveyId: number, answers: AnswerBody[]) =>
+    request<SubmittedResponse>("POST", `/api/open-surveys/${surveyId}/responses`, { answers }),
+  getResponse: (id: number) => request<ResponseDetail>("GET", `/api/responses/${id}`),
 };
 
 export const STATUS_LABELS: Record<SurveyStatus, string> = {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateSurveyInput } from "../../src/surveys/rules.js";
+import { validateAnswers, validateSurveyInput } from "../../src/surveys/rules.js";
 
 // UNIT-01 (AC-F03-02): the survey validation rules of the F-03 contract, section 1.
 const rating = (text = "How was it?") => ({ text, type: "RATING" });
@@ -48,5 +48,47 @@ describe("UNIT-01 validateSurveyInput", () => {
   it("names the failing question by its index", () => {
     const result = validateSurveyInput({ title: "Menu", questions: [rating(), choice(["Only"])] });
     expect(result).toEqual({ ok: false, fields: { "questions[1].options": "A choice question needs 2 to 6 options" } });
+  });
+});
+
+// UNIT-02 (AC-F06-05): the answer validation table of the F-06 contract, section 1.
+
+describe("UNIT-02 validateAnswers", () => {
+  const questions = [
+    { id: 11, type: "RATING" as const, optionIds: [] },
+    { id: 12, type: "CHOICE" as const, optionIds: [21, 22] },
+  ];
+
+  it("accepts ratings 1 and 5 and an option of the question, in any order", () => {
+    for (const ratingValue of [1, 5]) {
+      expect(validateAnswers(questions, { answers: [{ questionId: 12, optionId: 22 }, { questionId: 11, ratingValue }] })).toEqual({
+        ok: true,
+        value: [
+          { questionId: 11, ratingValue, optionId: null },
+          { questionId: 12, ratingValue: null, optionId: 22 },
+        ],
+      });
+    }
+  });
+
+  const cases: [string, unknown, string, string][] = [
+    ["a missing answer", { answers: [{ questionId: 11, ratingValue: 3 }] }, "answers[12]", "Please answer this question"],
+    ["answers that are not a list", { answers: "4" }, "answers[11]", "Please answer this question"],
+    ["an unknown question", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12, optionId: 21 }, { questionId: 99, ratingValue: 3 }] }, "answers", "Unknown question"],
+    ["two answers to one question", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 11, ratingValue: 4 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Answer once"],
+    ["rating 0", { answers: [{ questionId: 11, ratingValue: 0 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
+    ["rating 6", { answers: [{ questionId: 11, ratingValue: 6 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
+    ["rating 3.5", { answers: [{ questionId: 11, ratingValue: 3.5 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
+    ["rating as text", { answers: [{ questionId: 11, ratingValue: "4" }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
+    ["an option of another question", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12, optionId: 99 }] }, "answers[12]", "Choose one of the options"],
+    ["a choice without option", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12 }] }, "answers[12]", "Choose one of the options"],
+    ["a rating answer with optionId", { answers: [{ questionId: 11, optionId: 21 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Wrong answer type for this question"],
+    ["a choice answer with ratingValue", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12, ratingValue: 3 }] }, "answers[12]", "Wrong answer type for this question"],
+  ];
+
+  it.each(cases)("rejects %s", (_label, body, field, message) => {
+    const result = validateAnswers(questions, body);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.fields[field]).toBe(message);
   });
 });

@@ -46,6 +46,7 @@ export default function MySurveys() {
                 <th scope="col">Title</th>
                 <th scope="col">Status</th>
                 <th scope="col">Questions</th>
+                <th scope="col">Responses</th>
                 <th scope="col">Created</th>
               </tr>
             </thead>
@@ -59,6 +60,7 @@ export default function MySurveys() {
                     <StatusBadge status={s.status} />
                   </td>
                   <td>{s.questionCount}</td>
+                  <td>{s.responseCount}</td>
                   <td>{formatDateTime(s.createdAt)}</td>
                 </tr>
               ))}

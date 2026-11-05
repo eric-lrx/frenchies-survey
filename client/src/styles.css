@@ -160,3 +160,47 @@ textarea:focus-visible {
   gap: 0.75rem;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
 }
+
+.status-answered {
+  color: #1d4f8a;
+  background: #e8f0fb;
+}
+
+.answer-question {
+  border: 0;
+  padding: 0 0 1rem;
+  margin: 0 0 1rem;
+  border-bottom: 1px solid #efe7dc;
+}
+
+.rating-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Large touch targets for the 1 to 5 scale; the number is the label. */
+.rating-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 3rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #d6c8b8;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.rating-choice:has(input:checked) {
+  border-color: var(--cf-brown);
+  background: #f3e9df;
+  font-weight: 600;
+}
+
+.answer-list dt {
+  font-weight: 600;
+}
+
+.answer-list dd {
+  margin-bottom: 0.75rem;
+}

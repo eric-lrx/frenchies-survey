@@ -37,3 +37,37 @@ export const VALID_SURVEY_BODY = {
     { text: "Which drink did you order?", type: "CHOICE", options: ["Latte", "Iced tea", "Espresso"] },
   ],
 };
+
+// A stored response with one answer per question of a survey made by createSurvey:
+// a rating, then the choice option at optionIndex.
+export async function createResponse(
+  survey: Awaited<ReturnType<typeof createSurvey>>,
+  respondentId: number,
+  rating = 4,
+  optionIndex = 0,
+) {
+  const [ratingQuestion, choiceQuestion] = survey.questions;
+  return prisma.response.create({
+    data: {
+      surveyId: survey.id,
+      respondentId,
+      answers: {
+        create: [
+          { questionId: ratingQuestion.id, ratingValue: rating },
+          { questionId: choiceQuestion.id, optionId: choiceQuestion.options[optionIndex].id },
+        ],
+      },
+    },
+  });
+}
+
+// A valid body for POST /api/open-surveys/:id/responses on a survey made by createSurvey.
+export function validAnswers(survey: Awaited<ReturnType<typeof createSurvey>>, rating = 4, optionIndex = 0) {
+  const [ratingQuestion, choiceQuestion] = survey.questions;
+  return {
+    answers: [
+      { questionId: ratingQuestion.id, ratingValue: rating },
+      { questionId: choiceQuestion.id, optionId: choiceQuestion.options[optionIndex].id },
+    ],
+  };
+}

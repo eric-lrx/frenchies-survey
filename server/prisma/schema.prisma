@@ -26,6 +26,7 @@ model User {
   createdAt    DateTime  @default(now())
   sessions     Session[]
   surveys      Survey[]
+  responses    Response[]
 }
 
 // F-01: server-side sessions (D-04). Only the SHA-256 hash of the cookie token is stored,
@@ -65,6 +66,7 @@ model Survey {
   publishedAt DateTime?
   closedAt    DateTime?
   questions   Question[]
+  responses   Response[]
 
   @@index([ownerId])
   @@index([status])
@@ -78,6 +80,7 @@ model Question {
   text     String
   type     QuestionType
   options  QuestionOption[]
+  answers  Answer[]
 
   @@unique([surveyId, position])
 }
@@ -88,7 +91,39 @@ model QuestionOption {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   position   Int
   label      String
+  answers    Answer[]
 
   @@unique([questionId, position])
   @@unique([questionId, label])
+}
+
+// F-06: one response per respondent per survey (BR-06), enforced by the unique key so two
+// simultaneous submissions cannot both be stored.
+model Response {
+  id           Int      @id @default(autoincrement())
+  surveyId     Int
+  survey       Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  respondentId Int
+  respondent   User     @relation(fields: [respondentId], references: [id])
+  submittedAt  DateTime @default(now())
+  answers      Answer[]
+
+  @@unique([surveyId, respondentId])
+  @@index([surveyId])
+}
+
+// F-06: one answer per question. Two CHECK constraints in the migration SQL (Prisma cannot
+// declare them): ratingValue between 1 and 5, and exactly one of ratingValue and optionId.
+model Answer {
+  id          Int             @id @default(autoincrement())
+  responseId  Int
+  response    Response        @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId  Int
+  question    Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  ratingValue Int?
+  optionId    Int?
+  option      QuestionOption? @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+  @@index([questionId])
 }

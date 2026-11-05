@@ -72,3 +72,64 @@ export function validateSurveyInput(body: unknown): Validation<SurveyInput> {
   if (Object.keys(fields).length > 0) return { ok: false, fields };
   return { ok: true, value: { title, description, questions } };
 }
+
+// F-06 answer validation (contract section 1, BR-07, BR-08). `questions` are the survey's own
+// questions in order; the result has one answer per question, in that order.
+export interface QuestionRule {
+  id: number;
+  type: QuestionType;
+  optionIds: number[];
+}
+
+export interface AnswerInput {
+  questionId: number;
+  ratingValue: number | null;
+  optionId: number | null;
+}
+
+export function validateAnswers(questions: QuestionRule[], body: unknown): Validation<AnswerInput[]> {
+  const input = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
+  const raw = Array.isArray(input.answers) ? input.answers : [];
+  const fields: Record<string, string> = {};
+  const byQuestion = new Map<number, Record<string, unknown>>();
+  const known = new Set(questions.map((q) => q.id));
+
+  for (const item of raw) {
+    const answer = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+    const questionId = answer.questionId;
+    if (typeof questionId !== "number" || !known.has(questionId)) {
+      fields.answers = "Unknown question";
+      continue;
+    }
+    if (byQuestion.has(questionId)) {
+      fields[`answers[${questionId}]`] = "Answer once";
+      continue;
+    }
+    byQuestion.set(questionId, answer);
+  }
+
+  const value: AnswerInput[] = [];
+  for (const q of questions) {
+    const key = `answers[${q.id}]`;
+    if (fields[key]) continue;
+    const answer = byQuestion.get(q.id);
+    if (!answer) {
+      fields[key] = "Please answer this question";
+      continue;
+    }
+    const { ratingValue, optionId } = answer;
+    if (q.type === "RATING") {
+      if (optionId !== undefined && optionId !== null) fields[key] = "Wrong answer type for this question";
+      else if (typeof ratingValue !== "number" || !Number.isInteger(ratingValue) || ratingValue < 1 || ratingValue > 5) {
+        fields[key] = "Choose a rating from 1 to 5";
+      } else value.push({ questionId: q.id, ratingValue, optionId: null });
+    } else {
+      if (ratingValue !== undefined && ratingValue !== null) fields[key] = "Wrong answer type for this question";
+      else if (typeof optionId !== "number" || !q.optionIds.includes(optionId)) fields[key] = "Choose one of the options";
+      else value.push({ questionId: q.id, ratingValue: null, optionId });
+    }
+  }
+
+  if (Object.keys(fields).length > 0) return { ok: false, fields };
+  return { ok: true, value };
+}

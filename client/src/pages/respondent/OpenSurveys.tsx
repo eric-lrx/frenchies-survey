@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { api, ApiError, type OpenSurvey } from "../../api.js";
 import { Loading, LoadError } from "../../components/Feedback.js";
 
-// F-05 "Open surveys" (contract v1.1, section 3). The "Answered" badge is added by F-06.
+// F-05 "Open surveys" (contract v1.1, section 3), with the "Answered" badge of F-06.
 export default function OpenSurveys() {
   const [surveys, setSurveys] = useState<OpenSurvey[] | null>(null);
   const [error, setError] = useState("");
@@ -41,9 +41,13 @@ export default function OpenSurveys() {
                 <span className="small text-body-secondary me-auto">
                   {s.questionCount} {s.questionCount === 1 ? "question" : "questions"}
                 </span>
-                <Link to={`/surveys/${s.id}`} className="btn btn-cafe btn-sm" aria-label={`Answer ${s.title}`}>
-                  Answer
-                </Link>
+                {s.alreadyResponded ? (
+                  <span className="status-badge status-answered">Answered</span>
+                ) : (
+                  <Link to={`/surveys/${s.id}`} className="btn btn-cafe btn-sm" aria-label={`Answer ${s.title}`}>
+                    Answer
+                  </Link>
+                )}
               </div>
             </li>
           ))}
