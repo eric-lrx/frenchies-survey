@@ -4,7 +4,7 @@
 |---|---|
 | Requirements | BR-01, BR-10, NFR-02 |
 | Depends on | F-01 |
-| Version | 1.0, 2026-11-05 |
+| Version | 1.1, 2026-11-05 (see section 7) |
 
 ## 1. Behaviour
 
@@ -55,6 +55,21 @@ F-06.
 
 ## 6. Tests
 
+F-02 builds the checks (`requireRole`, the ownership-filtered queries, the id parsing, the 415 guard and
+the role navigation) before the routes they protect exist. TEST-F02-01 to TEST-F02-05 therefore grow with
+the features: each one adds its routes to them in the same pull request.
+
+| Test | Grows with |
+|---|---|
+| TEST-F02-01 (respondent on owner routes) | F-03 (list, create, detail), F-04 (publish), F-07 (summary) |
+| TEST-F02-02 (owner on respondent routes) | F-05 (open surveys), F-06 (submit, read a response) |
+| TEST-F02-03 (another owner's survey) | F-03 (detail), F-04 (publish), F-07 (summary) |
+| TEST-F02-04 (another respondent's response) | F-06 |
+| TEST-F02-05 (invalid and unknown ids) | F-03 |
+
+In F-02 itself the mechanism is tested directly on a small test router (role check, 401 before 403, the
+role taken from the database), together with TEST-F02-06 and E2E-03.
+
 | Test | AC | Level | Precondition or input | Action | Expected result |
 |---|---|---|---|---|---|
 | TEST-F02-01 | AC-F02-01 | API | Signed-in respondent; a seeded survey id | Call `GET` and `POST /api/surveys`, `GET /api/surveys/:id`, `POST .../publish`, `GET .../summary` | Each 403 `FORBIDDEN`; survey count and status unchanged |
@@ -70,3 +85,4 @@ F-06.
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 1.0 | 2026-11-05 | First version | Written before implementation |
+| 1.1 | 2026-11-05 | Test allocation: TEST-F02-01 to 05 grow with F-03 to F-07; the mechanism is tested on a test router in F-02 | Found when starting F-02: its route tests need routes that F-03 to F-06 create, while F-02 must come first |
