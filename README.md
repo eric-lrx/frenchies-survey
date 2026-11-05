@@ -15,5 +15,6 @@ Sprint 1 is in progress. Engineering documents are in `docs/`:
 | `docs/traceability.md` | Requirement, feature, sprint and verification |
 | `docs/system-sds.md` | Architecture, data model, API and access conventions, configuration, deployment plan |
 | `docs/sprints/plan.md` | Three-sprint plan |
+| `docs/sprints/sprint-1/` | Sprint 1 contracts (one per feature), test specification, Definition of Done |
 
 Setup, seed, test and run commands will be added with the first code.

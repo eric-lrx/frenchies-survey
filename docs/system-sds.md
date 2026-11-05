@@ -1,6 +1,6 @@
 # System-Level Software Design Specification: Café Feedback
 
-Version 0.1, 2026-11-05. Requirements: `docs/srs.md`. Features: `docs/features.md`.
+Version 0.2, 2026-11-05 (section 9). Requirements: `docs/srs.md`. Features: `docs/features.md`.
 Feature-level designs are in `docs/sprints/sprint-N/`.
 
 ## 1. Architecture and stack
@@ -79,7 +79,7 @@ work at 375, 768 and 1280 px without horizontal scrolling (NFR-07).
 | 403 | Valid session, wrong role |
 | 404 | Resource does not exist, or belongs to someone else (the response is identical, so existence does not leak) |
 | 409 | The request conflicts with the state: duplicate response, survey not open, invalid transition |
-| Mutations | Accept only `application/json` bodies, which with a `SameSite=Lax` cookie blocks cross-site form posts |
+| Mutations | Accept only `application/json` bodies (otherwise 415), which with a `SameSite=Lax` cookie blocks cross-site form posts |
 
 Feature contracts give each endpoint's exact request, response and errors.
 
@@ -119,10 +119,11 @@ The check is made on the server on every call. Hiding a button is not authorizat
 | `SEED_PASSWORD` | Password given to the demo accounts by the seed | yes |
 | `PORT` | API port, default 3000 | no |
 | `NODE_ENV` | `development`, `test` or `production` (turns on `Secure` cookies) | no |
-| `CLIENT_ORIGIN` | Allowed browser origin in development | no |
+| `TEST_DATABASE_URL` | Connection string of the separate test database, used only by the automated tests | yes |
 
 `.env` is ignored by Git and only `.env.example`, with placeholders, is committed. The code reads every
-setting from the environment (NFR-08).
+setting from the environment (NFR-08). No CORS setting is needed: in development the Vite server forwards
+`/api` to the API, and in production one container serves both, so the browser always sees one origin.
 
 ## 8. Delivery and deployment plan
 
@@ -139,3 +140,10 @@ Docker and the pipeline are built in Lab 5; Sprint 1 only keeps the design compa
   The container stores nothing.
 
 The final choices, names and commands will be recorded in `docs/labs/lab-05/deployment.md`.
+
+## 9. Revision history
+
+| Version | Date | Change | Reason |
+|---|---|---|---|
+| 0.1 | 2026-11-05 | First baseline | Project Deliverable 1 |
+| 0.2 | 2026-11-05 | `CLIENT_ORIGIN` removed and `TEST_DATABASE_URL` added in section 7; 415 named in section 4 | The Sprint 1 contracts (F-08, F-02) chose a same-origin setup and a separate test database |
