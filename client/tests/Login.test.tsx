@@ -18,8 +18,9 @@ describe("Login screen", () => {
     let resolveLogin: (r: Response) => void = () => {};
     vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
       const url = String(input);
-      if (url.endsWith("/api/auth/me")) {
-        return Promise.resolve(jsonResponse(401, { error: { code: "UNAUTHENTICATED", message: "Please sign in." } }));
+      // Page-load check (F-01 contract v1.1): nobody is signed in.
+      if (url.endsWith("/api/auth/session")) {
+        return Promise.resolve(jsonResponse(200, { data: null }));
       }
       return new Promise<Response>((resolve) => {
         resolveLogin = resolve;

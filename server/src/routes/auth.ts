@@ -2,7 +2,7 @@ import { Router } from "express";
 import { prisma } from "../prisma.js";
 import { sendError } from "../http.js";
 import { UNKNOWN_USER_HASH, verifyPassword } from "../auth/password.js";
-import { endSession, startSession } from "../auth/sessions.js";
+import { SESSION_COOKIE, endSession, findSessionUser, startSession } from "../auth/sessions.js";
 import { requireAuth } from "../auth/middleware.js";
 
 // F-01 Authentication (docs/sprints/sprint-1/F-01-authentication.md, section 2).
@@ -40,6 +40,18 @@ authRouter.post("/login", async (req, res, next) => {
 
 authRouter.get("/me", requireAuth, (req, res) => {
   res.json({ data: req.user });
+});
+
+// Page-load check (contract v1.1): always 200, so a visitor who is not signed in does not
+// cause a failed request. It only ever describes the caller's own session.
+authRouter.get("/session", async (req, res, next) => {
+  try {
+    const token: unknown = req.cookies?.[SESSION_COOKIE];
+    const user = typeof token === "string" && token ? await findSessionUser(token) : null;
+    res.json({ data: user });
+  } catch (err) {
+    next(err);
+  }
 });
 
 authRouter.post("/logout", requireAuth, async (req, res, next) => {

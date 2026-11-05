@@ -10,8 +10,8 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-// Restores the session on page load with GET /api/auth/me and keeps the signed-in user
-// for the whole application (F-01 contract, section 3).
+// Restores the session on page load with GET /api/auth/session (always 200) and keeps the
+// signed-in user for the whole application (F-01 contract v1.1, section 3).
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,8 +20,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUnauthorizedHandler(() => setUser(null));
     let cancelled = false;
     api
-      .me()
-      .then((me) => !cancelled && setUser(me))
+      .session()
+      .then((current) => !cancelled && setUser(current))
       .catch(() => !cancelled && setUser(null))
       .finally(() => !cancelled && setLoading(false));
     return () => {

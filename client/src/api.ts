@@ -55,6 +55,7 @@ export const api = {
   login: (email: string, password: string) => request<User>("POST", "/api/auth/login", { email, password }),
   logout: () => request<void>("POST", "/api/auth/logout"),
   me: () => request<User>("GET", "/api/auth/me"),
+  session: () => request<User | null>("GET", "/api/auth/session"),
 };
 
 export function homePath(role: Role): string {
