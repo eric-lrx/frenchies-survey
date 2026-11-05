@@ -37,7 +37,7 @@ component) and `npm run e2e` (end to end).
 | AC-F03-02 | TEST-F03-02, UNIT-01, UI-02 | `server/tests/surveys.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/CreateSurvey.test.tsx` | Not run |
 | AC-F03-03 | TEST-F03-03 | `server/tests/surveys.api.test.ts` | Not run |
 | AC-F04-01 | TEST-F04-01, E2E-01 | `server/tests/surveys.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F04-02 | TEST-F04-02, TEST-F04-03 | `server/tests/surveys.api.test.ts` | Not run |
+| AC-F04-02 | TEST-F04-02, TEST-F04-03, TEST-F04-04 | `server/tests/surveys.api.test.ts` | Not run |
 | AC-F05-01 | TEST-F05-01, E2E-01 | `server/tests/open-surveys.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
 | AC-F05-02 | TEST-F05-02 | `server/tests/open-surveys.api.test.ts` | Not run |
 | AC-F06-01 | TEST-F06-01, E2E-01 | `server/tests/responses.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
@@ -53,7 +53,7 @@ component) and `npm run e2e` (end to end).
 
 TEST-F02-01 to TEST-F02-05 are extended by F-03 to F-07 as their routes appear (F-02 contract v1.1, section 6).
 
-29 acceptance criteria and 45 planned tests: 34 API and DB, 3 unit, 4 UI component, 3 end to end and 1
+29 acceptance criteria and 46 planned tests: 35 API and DB, 3 unit, 4 UI component, 3 end to end and 1
 manual. Every criterion has at least one automated test, except AC-F08-01, which also has a manual check
 because it is about following the README by hand.
 
