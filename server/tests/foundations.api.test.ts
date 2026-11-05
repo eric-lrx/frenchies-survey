@@ -12,6 +12,12 @@ describe("F-08 probes and error handling", () => {
     expect(res.body).toEqual({ data: { status: "ok" } });
   });
 
+  it("TEST-F08-03 GET /api/ready answers 200 when the database responds, without private data", async () => {
+    const res = await request(app).get("/api/ready");
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ data: { status: "ready" } });
+  });
+
   it("answers an unknown API route with a JSON 404, not an HTML page", async () => {
     const res = await request(app).get("/api/does-not-exist");
     expect(res.status).toBe(404);
