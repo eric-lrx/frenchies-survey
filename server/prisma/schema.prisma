@@ -1,0 +1,129 @@
+// Café Feedback data model. Each feature adds its tables through its own migration
+// (docs/system-sds.md, section 2, and the Sprint 1 contracts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// F-01: one role per account (D-03).
+enum Role {
+  SURVEY_OWNER
+  RESPONDENT
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  sessions     Session[]
+  surveys      Survey[]
+  responses    Response[]
+}
+
+// F-01: server-side sessions (D-04). Only the SHA-256 hash of the cookie token is stored,
+// so a database leak does not give working cookies; logout deletes the row.
+model Session {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// F-03: survey lifecycle DRAFT -> PUBLISHED -> CLOSED (BR-02).
+enum SurveyStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+// F-03: Sprint 1 question types (D-05); TEXT arrives in Sprint 2.
+enum QuestionType {
+  RATING
+  CHOICE
+}
+
+model Survey {
+  id          Int          @id @default(autoincrement())
+  ownerId     Int
+  owner       User         @relation(fields: [ownerId], references: [id])
+  title       String
+  description String?
+  status      SurveyStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  publishedAt DateTime?
+  closedAt    DateTime?
+  questions   Question[]
+  responses   Response[]
+
+  @@index([ownerId])
+  @@index([status])
+}
+
+model Question {
+  id       Int              @id @default(autoincrement())
+  surveyId Int
+  survey   Survey           @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  position Int
+  text     String
+  type     QuestionType
+  options  QuestionOption[]
+  answers  Answer[]
+
+  @@unique([surveyId, position])
+}
+
+model QuestionOption {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  position   Int
+  label      String
+  answers    Answer[]
+
+  @@unique([questionId, position])
+  @@unique([questionId, label])
+}
+
+// F-06: one response per respondent per survey (BR-06), enforced by the unique key so two
+// simultaneous submissions cannot both be stored.
+model Response {
+  id           Int      @id @default(autoincrement())
+  surveyId     Int
+  survey       Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  respondentId Int
+  respondent   User     @relation(fields: [respondentId], references: [id])
+  submittedAt  DateTime @default(now())
+  answers      Answer[]
+
+  @@unique([surveyId, respondentId])
+  @@index([surveyId])
+}
+
+// F-06: one answer per question. Two CHECK constraints in the migration SQL (Prisma cannot
+// declare them): ratingValue between 1 and 5, and exactly one of ratingValue and optionId.
+model Answer {
+  id          Int             @id @default(autoincrement())
+  responseId  Int
+  response    Response        @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId  Int
+  question    Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  ratingValue Int?
+  optionId    Int?
+  option      QuestionOption? @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+  @@index([questionId])
+}
