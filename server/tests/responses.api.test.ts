@@ -97,6 +97,7 @@ describe("POST /api/open-surveys/:id/responses", () => {
       ["one answer missing", { answers: [goodRating] }, `answers[${choice.id}]`, "Please answer this question"],
       ["no answers at all", {}, `answers[${rating.id}]`, "Please answer this question"],
       ["an unknown question", { answers: [goodRating, goodChoice, { questionId: other.questions[0].id, ratingValue: 3 }] }, "answers", "Unknown question"],
+      ["a questionId sent as a string", { answers: [goodRating, { questionId: String(choice.id), optionId: choice.options[0].id }] }, "answers", "Unknown question"],
       ["two answers for one question", { answers: [goodRating, { questionId: rating.id, ratingValue: 5 }, goodChoice] }, `answers[${rating.id}]`, "Answer once"],
       ["rating 0", { answers: [{ questionId: rating.id, ratingValue: 0 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 5"],
       ["rating 6", { answers: [{ questionId: rating.id, ratingValue: 6 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 5"],

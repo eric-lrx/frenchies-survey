@@ -31,4 +31,13 @@ describe("F-08 probes and error handling", () => {
     expect(res.body.error.code).toBe("VALIDATION_ERROR");
     expect(JSON.stringify(res.body)).not.toMatch(/at .*\.(ts|js):\d+/);
   });
+
+  it("answers a JSON body over 100 kB with a 413, not a stack trace", async () => {
+    const res = await request(app)
+      .post("/api/health")
+      .set("Content-Type", "application/json")
+      .send(JSON.stringify({ padding: "x".repeat(101 * 1024) }));
+    expect(res.status).toBe(413);
+    expect(res.body).toEqual({ error: { code: "PAYLOAD_TOO_LARGE", message: "The request body is too large." } });
+  });
 });

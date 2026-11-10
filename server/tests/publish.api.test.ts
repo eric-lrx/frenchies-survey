@@ -56,6 +56,9 @@ describe("POST /api/surveys/:id/publish", () => {
 
     expect([a.status, b.status].sort()).toEqual([200, 409]);
     const winner = a.status === 200 ? a : b;
+    const loser = a.status === 200 ? b : a;
+    expect(loser.body.error.code).toBe("INVALID_TRANSITION");
+    expect(loser.body.error.currentStatus).toBe("PUBLISHED");
     const stored = await prisma.survey.findUniqueOrThrow({ where: { id: survey.id } });
     expect(stored.publishedAt?.toISOString()).toBe(winner.body.data.publishedAt);
   });
