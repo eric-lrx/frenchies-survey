@@ -1,0 +1,99 @@
+# Deploy Café Feedback to Cloud Run (Lab 5, #28, R-07 and R-08).
+# Adapted from the Lab 5 Starter Kit. Every merge into main is a release:
+#   CI (the same test-and-docker job) -> build and push the image tagged with the
+#   full commit SHA -> migration job -> Cloud Run by digest -> smoke test.
+# Rollback: Actions > Deploy > Run workflow on main with image_tag = the full SHA
+# of an earlier release; tests, build and migration are skipped.
+# Needs the GitHub environment `demo` (main only) with the variables
+# GCP_PROJECT_ID, GCP_REGION, WIF_PROVIDER, WIF_SERVICE_ACCOUNT (docs/labs/lab-05).
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Rollback: full 40-character commit SHA of an existing image. Empty = test, build and deploy current main."
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: github.ref == 'refs/heads/main' && !inputs.image_tag
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: test
+    if: >-
+      always() && !cancelled() && github.ref == 'refs/heads/main' &&
+      (needs.test.result == 'success' ||
+       (github.event_name == 'workflow_dispatch' && inputs.image_tag != '' && needs.test.result == 'skipped'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: demo
+    permissions:
+      contents: read
+      id-token: write # keyless sign-in to Google Cloud (Workload Identity Federation)
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+      ROLLBACK: ${{ inputs.image_tag != '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the deployment settings
+        env:
+          WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
+          WIF_SERVICE_ACCOUNT: ${{ vars.WIF_SERVICE_ACCOUNT }}
+        run: |
+          test -n "$PROJECT_ID" && test -n "$REGION"
+          test -n "$WIF_PROVIDER" && test -n "$WIF_SERVICE_ACCOUNT"
+          [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo 'image_tag must be a full 40-character commit SHA.'; exit 1; }
+
+      - name: Sign in to Google Cloud without a key
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Build and push the image tagged with the commit SHA
+        if: env.ROLLBACK != 'true'
+        run: |
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/cafe-feedback/cafe-feedback:$IMAGE_TAG"
+          docker build --build-arg APP_COMMIT="$IMAGE_TAG" --tag "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Check the image, migrate, deploy by digest
+        run: bash deploy/release.sh
+
+      - name: Smoke test the public URL (the running commit must be this release)
+        env:
+          EXPECTED_COMMIT: ${{ env.IMAGE_TAG }}
+          SMOKE_EMAIL: ${{ vars.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: python3 deploy/smoke_test.py "$SERVICE_URL"
+
+      - name: Record the release
+        run: |
+          {
+            echo '### Café Feedback release'
+            echo "- Commit (image tag): \`$IMAGE_TAG\`"
+            echo "- Image digest: \`$DEPLOYED_IMAGE\`"
+            echo "- Rollback: $ROLLBACK"
+            echo "- URL: $SERVICE_URL (running commit: $SERVICE_URL/api/version)"
+          } >> "$GITHUB_STEP_SUMMARY"
