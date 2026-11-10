@@ -14,11 +14,12 @@ RUN apk add --no-cache openssl
 COPY package.json package-lock.json ./
 COPY server/package.json server/package.json
 COPY client/package.json client/package.json
+# The server's postinstall runs `prisma generate`, which needs the schema.
+COPY server/prisma/schema.prisma server/prisma/schema.prisma
 RUN npm ci
 COPY server/ server/
 COPY client/ client/
-RUN npx -w server prisma generate \
- && npm run build -w server \
+RUN npm run build -w server \
  && npm run build -w client
 # Keep only the runtime dependencies for the final stage (the Prisma CLI is one,
 # because the migration job runs `prisma migrate deploy` from this image).
