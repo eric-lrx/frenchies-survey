@@ -40,6 +40,12 @@ export function createApp(options: AppOptions = {}) {
     res.json({ data: { status: "ok" } });
   });
 
+  // Which commit the running image was built from (Lab 5, R-08). The image sets APP_COMMIT
+  // at build time; it is not a secret.
+  app.get("/api/version", (_req, res) => {
+    res.json({ data: { commit: process.env.APP_COMMIT || "unknown" } });
+  });
+
   // Readiness: the database answers a trivial query (F-08 contract v1.1, added with F-01).
   app.get("/api/ready", async (_req, res) => {
     try {
