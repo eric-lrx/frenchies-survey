@@ -25,7 +25,7 @@ npm test                                  # in another terminal
 npx playwright install chromium && npm run e2e
 ```
 
-`npm install` also generates the Prisma client. The allowed install scripts (Prisma engines and esbuild)
+`npm install` also generates the Prisma client (the `postinstall` script of `server/package.json`). The allowed install scripts (Prisma engines and esbuild)
 are listed under `allowScripts` in `package.json`.
 
 ## Environment variables (`server/.env`)

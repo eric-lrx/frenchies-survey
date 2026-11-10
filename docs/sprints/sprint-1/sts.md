@@ -1,8 +1,8 @@
 # Sprint 1 Software Test Specification: coverage and results
 
 Each contract in this folder gives the full test rows: input or precondition, action, expected result.
-This page maps every Sprint 1 acceptance criterion to its tests and planned files, and will hold the
-results of the release run.
+This page maps every Sprint 1 acceptance criterion to its tests and files, and holds the results of the
+release run (section 4).
 
 ## 1. Test levels and tools
 
@@ -21,35 +21,35 @@ component) and `npm run e2e` (end to end).
 
 | AC | Tests | Planned file | Result |
 |---|---|---|---|
-| AC-F08-01 | TEST-F08-01 (manual), TEST-F08-03 | README procedure; `server/tests/foundations.api.test.ts` | Not run |
-| AC-F08-02 | TEST-F08-02 | `server/tests/seed.db.test.ts` | Not run |
-| AC-F01-01 | TEST-F01-01 | `server/tests/auth.api.test.ts` | Not run |
-| AC-F01-02 | TEST-F01-02, TEST-F01-07, UI-01 | `server/tests/auth.api.test.ts`; `client/tests/Login.test.tsx` | Not run |
-| AC-F01-03 | TEST-F01-03, TEST-F01-08 | `server/tests/auth.api.test.ts` | Not run |
-| AC-F01-04 | TEST-F01-04, E2E-03 | `server/tests/auth.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F01-05 | TEST-F01-05 | `server/tests/auth.api.test.ts` | Not run |
-| AC-F01-06 | TEST-F01-06 | `server/tests/seed.db.test.ts` | Not run |
-| AC-F02-01 | TEST-F02-01, TEST-F02-06, E2E-03 | `server/tests/access.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F02-02 | TEST-F02-02 | `server/tests/access.api.test.ts` | Not run |
-| AC-F02-03 | TEST-F02-03, TEST-F02-05 | `server/tests/access.api.test.ts` | Not run |
-| AC-F02-04 | TEST-F02-04 | `server/tests/access.api.test.ts` | Not run |
-| AC-F03-01 | TEST-F03-01, E2E-01 | `server/tests/surveys.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F03-02 | TEST-F03-02, UNIT-01, UI-02 | `server/tests/surveys.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/CreateSurvey.test.tsx` | Not run |
-| AC-F03-03 | TEST-F03-03 | `server/tests/surveys.api.test.ts` | Not run |
-| AC-F04-01 | TEST-F04-01, E2E-01 | `server/tests/publish.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F04-02 | TEST-F04-02, TEST-F04-03, TEST-F04-04 | `server/tests/publish.api.test.ts` | Not run |
-| AC-F05-01 | TEST-F05-01, E2E-01 | `server/tests/open-surveys.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F05-02 | TEST-F05-02 | `server/tests/open-surveys.api.test.ts` | Not run |
-| AC-F06-01 | TEST-F06-01, E2E-01 | `server/tests/responses.api.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F06-02 | TEST-F06-02, UI-03, E2E-02 | `server/tests/responses.api.test.ts`; `client/tests/FillSurvey.test.tsx`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F06-03 | TEST-F06-03 | `server/tests/responses.api.test.ts` | Not run |
-| AC-F06-04 | TEST-F06-04 | `server/tests/responses.api.test.ts` | Not run |
-| AC-F06-05 | TEST-F06-05, UNIT-02 | `server/tests/responses.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts` | Not run |
-| AC-F06-06 | TEST-F06-06 | `server/tests/responses.api.test.ts` | Not run |
-| AC-F06-07 | TEST-F06-07 | `server/tests/responses.api.test.ts` | Not run |
-| AC-F07-01 | TEST-F07-01, UNIT-03, E2E-01 | `server/tests/summary.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `e2e/sprint-1.spec.ts` | Not run |
-| AC-F07-02 | TEST-F07-02, UNIT-03, UI-04 | `server/tests/summary.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/Summary.test.tsx` | Not run |
-| AC-F07-03 | TEST-F07-03 | `server/tests/summary.api.test.ts` | Not run |
+| AC-F08-01 | TEST-F08-01 (manual), TEST-F08-03 | README procedure; `server/tests/foundations.api.test.ts` | Pass |
+| AC-F08-02 | TEST-F08-02 | `server/tests/seed.db.test.ts` | Pass |
+| AC-F01-01 | TEST-F01-01 | `server/tests/auth.api.test.ts` | Pass |
+| AC-F01-02 | TEST-F01-02, TEST-F01-07, UI-01 | `server/tests/auth.api.test.ts`; `client/tests/Login.test.tsx` | Pass |
+| AC-F01-03 | TEST-F01-03, TEST-F01-08 | `server/tests/auth.api.test.ts` | Pass |
+| AC-F01-04 | TEST-F01-04, E2E-03 | `server/tests/auth.api.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F01-05 | TEST-F01-05 | `server/tests/auth.api.test.ts` | Pass |
+| AC-F01-06 | TEST-F01-06 | `server/tests/seed.db.test.ts` | Pass |
+| AC-F02-01 | TEST-F02-01, TEST-F02-06, E2E-03 | `server/tests/access.api.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F02-02 | TEST-F02-02 | `server/tests/access.api.test.ts` | Pass |
+| AC-F02-03 | TEST-F02-03, TEST-F02-05 | `server/tests/access.api.test.ts` | Pass |
+| AC-F02-04 | TEST-F02-04 | `server/tests/access.api.test.ts` | Pass |
+| AC-F03-01 | TEST-F03-01, E2E-01 | `server/tests/surveys.api.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F03-02 | TEST-F03-02, UNIT-01, UI-02 | `server/tests/surveys.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/CreateSurvey.test.tsx` | Pass |
+| AC-F03-03 | TEST-F03-03 | `server/tests/surveys.api.test.ts` | Pass |
+| AC-F04-01 | TEST-F04-01, E2E-01 | `server/tests/publish.api.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F04-02 | TEST-F04-02, TEST-F04-03, TEST-F04-04 | `server/tests/publish.api.test.ts` | Pass |
+| AC-F05-01 | TEST-F05-01, E2E-01 | `server/tests/open-surveys.api.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F05-02 | TEST-F05-02 | `server/tests/open-surveys.api.test.ts` | Pass |
+| AC-F06-01 | TEST-F06-01, E2E-01 | `server/tests/responses.api.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F06-02 | TEST-F06-02, UI-03, E2E-02 | `server/tests/responses.api.test.ts`; `client/tests/FillSurvey.test.tsx`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F06-03 | TEST-F06-03 | `server/tests/responses.api.test.ts` | Pass |
+| AC-F06-04 | TEST-F06-04 | `server/tests/responses.api.test.ts` | Pass |
+| AC-F06-05 | TEST-F06-05, UNIT-02 | `server/tests/responses.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts` | Pass |
+| AC-F06-06 | TEST-F06-06 | `server/tests/responses.api.test.ts` | Pass |
+| AC-F06-07 | TEST-F06-07 | `server/tests/responses.api.test.ts` | Pass |
+| AC-F07-01 | TEST-F07-01, UNIT-03, E2E-01 | `server/tests/summary.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `e2e/sprint-1.spec.ts` | Pass |
+| AC-F07-02 | TEST-F07-02, UNIT-03, UI-04 | `server/tests/summary.api.test.ts`; `server/tests/unit/survey-rules.unit.test.ts`; `client/tests/Summary.test.tsx` | Pass |
+| AC-F07-03 | TEST-F07-03 | `server/tests/summary.api.test.ts` | Pass |
 
 TEST-F02-01 to TEST-F02-05 are extended by F-03 to F-07 as their routes appear (F-02 contract v1.1, section 6).
 
@@ -65,11 +65,31 @@ implementation and the passing run after it are kept with their commit ids for P
 
 ## 4. Release run
 
-To fill in on the release commit: the commit id, the date, each command, and the passed, failed and
-skipped counts. Failed or skipped tests are reported here, never hidden.
+Run on 2026-11-05, macOS, Node 24.21.0, PostgreSQL 16, on commit `ee69fbc` (branch
+`fix/F-08-prisma-generate`: `staging` after PRs #2 to #20, plus the F-08 v1.2 fix and the tests added after
+review). Later commits on this branch change only this file. The release is checked again on the
+`staging → main` merge commit before the tag `v0.1.0`. The raw outputs are kept for Part F of the
+deliverable.
 
 | Command | Commit | Passed | Failed | Skipped |
 |---|---|---|---|---|
-| `npm test` | | | | |
-| `npm run e2e` | | | | |
-| TEST-F08-01 (manual) | | | | |
+| `npm test` (server: unit, API and DB) | `ee69fbc` | 114 | 0 | 0 |
+| `npm test` (client: UI component) | `ee69fbc` | 9 | 0 | 0 |
+| `npm run e2e` | `ee69fbc` | 4 | 0 | 0 |
+| TEST-F08-01 (manual) | `b8d6954` (first try on `62a069e` failed) | 1 | 1 | 0 |
+
+Every planned test ID (TEST-F01-01 to TEST-F08-03, UNIT-01 to UNIT-03, UI-01 to UI-04, E2E-01 to E2E-03)
+appears in at least one test title of its planned file, and all of them pass. The 114 server tests are more
+than the 35 planned API and DB rows because several rows have one test per case (for example TEST-F03-02 has
+9 validation cases, UNIT-01 has 17). The fourth end-to-end test checks the owner's navigation. TEST-F08-01 was not repeated after `b8d6954`: the
+later commits change only tests, documentation and `.gitignore`, not the setup steps.
+
+**TEST-F08-01, recorded.** A fresh clone in an empty folder, following the README word for word, with
+separate database names so the development data stayed untouched. The first attempt, on `62a069e`
+(`staging`), **failed** at `npm run db:seed`: "@prisma/client did not initialize yet". In an npm workspace,
+the `@prisma/client` install step looks for the schema at the repository root, so the client was never
+generated; in the development folder it had been generated by hand earlier, which hid the problem. Fix:
+`postinstall: prisma generate` in `server/package.json` (F-08 contract v1.2). Second attempt with the fix,
+from a new `npm install`: migrate and seed succeed, `GET /api/ready` returns 200 through the UI proxy,
+sign-in as `camille@cafe.test` returns 200 with the role `SURVEY_OWNER`, `npm test` passes (113 + 9), and
+`npm run e2e` passes (4), which also signs in through the browser. The README needs 9 commands (limit 10).

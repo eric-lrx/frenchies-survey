@@ -90,3 +90,4 @@ JSON, and a last-resort handler that answers `500
 |---|---|---|---|
 | 1.0 | 2026-11-05 | First version | Written before implementation |
 | 1.1 | 2026-11-05 | `/api/ready` and the test-database reset helper move to F-01; the seed grows feature by feature; a 400 for malformed JSON is named | Found while implementing: `prisma generate` refuses a schema with no model ("You don't have any models defined"), so no database query is possible before F-01's first table |
+| 1.2 | 2026-11-05 | `server/package.json` runs `prisma generate` on `postinstall` | Found by TEST-F08-01 on a fresh clone: in an npm workspace, the `@prisma/client` install step looks for the schema at the repository root, not in `server/prisma`, so the client was never generated and `npm run db:seed` failed with "@prisma/client did not initialize yet" |
