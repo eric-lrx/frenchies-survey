@@ -1,5 +1,6 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
+import { join, resolve } from "node:path";
 import { HttpError, sendError } from "./http.js";
 import { prisma } from "./prisma.js";
 import { authRouter } from "./routes/auth.js";
@@ -7,11 +8,20 @@ import { surveysRouter } from "./routes/surveys.js";
 import { openSurveysRouter } from "./routes/openSurveys.js";
 import { responsesRouter } from "./routes/responses.js";
 
+export interface AppOptions {
+  // Folder of the built React app (client/dist). Set in the container only; in development
+  // the Vite server serves the UI and forwards /api here (Lab 5, #23).
+  staticDir?: string;
+}
+
 // Builds the Express application without starting a server, so tests can call it
 // through Supertest (F-08). Feature routes are registered here as they are built.
-export function createApp() {
+export function createApp(options: AppOptions = {}) {
   const app = express();
   app.disable("x-powered-by");
+  // Cloud Run puts one proxy in front of the container; trust it for the client address
+  // and the HTTPS scheme.
+  app.set("trust proxy", 1);
 
   // F-02: a request that carries a body must send JSON. With the SameSite=Lax cookie this
   // blocks cross-site HTML form posts. Body-less requests (logout, publish) pass.
@@ -30,6 +40,12 @@ export function createApp() {
     res.json({ data: { status: "ok" } });
   });
 
+  // Which commit the running image was built from (Lab 5, R-08). The image sets APP_COMMIT
+  // at build time; it is not a secret.
+  app.get("/api/version", (_req, res) => {
+    res.json({ data: { commit: process.env.APP_COMMIT || "unknown" } });
+  });
+
   // Readiness: the database answers a trivial query (F-08 contract v1.1, added with F-01).
   app.get("/api/ready", async (_req, res) => {
     try {
@@ -44,6 +60,23 @@ export function createApp() {
   app.use("/api/surveys", surveysRouter);
   app.use("/api/open-surveys", openSurveysRouter);
   app.use("/api/responses", responsesRouter);
+
+  if (options.staticDir) {
+    // sendFile needs an absolute path; STATIC_DIR may be relative to the working directory.
+    const staticDir = resolve(options.staticDir);
+    // Built assets have content hashes in their names, so they can be cached for long.
+    app.use("/assets", express.static(join(staticDir, "assets"), { immutable: true, maxAge: "1y" }));
+    // A missing asset is a 404, never the app shell (a stale page would load HTML as code).
+    app.use("/assets", (_req, res) => {
+      sendError(res, 404, "NOT_FOUND", "Not found.");
+    });
+    app.use(express.static(staticDir, { index: false }));
+    // Any other GET outside /api is a client-side route: answer with the app shell.
+    app.get(/^\/(?!api(\/|$)).*/, (_req, res) => {
+      res.set("Cache-Control", "no-cache");
+      res.sendFile(join(staticDir, "index.html"));
+    });
+  }
 
   app.use((_req, res) => {
     sendError(res, 404, "NOT_FOUND", "Not found.");

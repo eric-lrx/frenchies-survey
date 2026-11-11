@@ -18,6 +18,30 @@ describe("F-08 probes and error handling", () => {
     expect(res.body).toEqual({ data: { status: "ready" } });
   });
 
+  it("GET /api/version names the commit the running image was built from (Lab 5, R-08)", async () => {
+    const previous = process.env.APP_COMMIT;
+    process.env.APP_COMMIT = "0123456789abcdef0123456789abcdef01234567";
+    try {
+      const res = await request(createApp()).get("/api/version");
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ data: { commit: "0123456789abcdef0123456789abcdef01234567" } });
+    } finally {
+      if (previous === undefined) delete process.env.APP_COMMIT;
+      else process.env.APP_COMMIT = previous;
+    }
+  });
+
+  it("GET /api/version says unknown outside a built image", async () => {
+    const previous = process.env.APP_COMMIT;
+    delete process.env.APP_COMMIT;
+    try {
+      const res = await request(createApp()).get("/api/version");
+      expect(res.body).toEqual({ data: { commit: "unknown" } });
+    } finally {
+      if (previous !== undefined) process.env.APP_COMMIT = previous;
+    }
+  });
+
   it("answers an unknown API route with a JSON 404, not an HTML page", async () => {
     const res = await request(app).get("/api/does-not-exist");
     expect(res.status).toBe(404);

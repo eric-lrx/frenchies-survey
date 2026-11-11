@@ -15,4 +15,6 @@ export function requireEnv(name: string): string {
 export const settings = {
   port: Number(process.env.PORT ?? 3000),
   isProduction: process.env.NODE_ENV === "production",
+  // Folder of the built web app; set in the container image only (Lab 5).
+  staticDir: process.env.STATIC_DIR || undefined,
 };

@@ -51,6 +51,17 @@ Never commit `server/.env`. Only `server/.env.example` is tracked.
 | `npm run db:migrate` | Applies Prisma migrations to the development database |
 | `npm run db:seed` | Creates or updates the demo data (safe to run again) |
 
+## Production image (Docker)
+
+The same image runs locally and on Cloud Run: Express serves the API and the built web app on one port.
+
+```bash
+cp .env.example .env        # choose POSTGRES_PASSWORD and SEED_PASSWORD
+docker compose up --build   # PostgreSQL, then migrations and seed, then http://localhost:8080
+```
+
+Variables, GCP resources and the release procedure: [`docs/labs/lab-05/deployment.md`](docs/labs/lab-05/deployment.md).
+
 ## Engineering documents
 
 | Document | Content |
