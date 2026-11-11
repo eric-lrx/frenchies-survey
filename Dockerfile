@@ -28,6 +28,10 @@ RUN npm prune --omit=dev
 # ---- Stage 2: small runtime image, non-root ----------------------------------
 FROM node:24-alpine AS runtime
 RUN apk add --no-cache openssl
+# The full commit SHA this image is built from, shown by GET /api/version (R-08).
+# deploy.yml passes it with --build-arg; a local build says "unknown".
+ARG APP_COMMIT=unknown
+ENV APP_COMMIT=$APP_COMMIT
 ENV NODE_ENV=production \
     PATH=/app/node_modules/.bin:$PATH \
     PORT=3000 \
