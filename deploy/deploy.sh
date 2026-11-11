@@ -19,15 +19,9 @@ set -euo pipefail
 DRY_RUN="${DRY_RUN:-0}"
 REGION="${REGION:-asia-southeast1}"
 
-if [ "$DRY_RUN" = "1" ]; then
-  PROJECT_ID="${PROJECT_ID:-example-gcp-project}"
-else
-  PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || true)}"
-  if [ -z "$PROJECT_ID" ]; then
-    echo "Error: set PROJECT_ID or run: gcloud config set project YOUR_PROJECT_ID" >&2
-    exit 1
-  fi
-fi
+# Required, also for a dry run: never fall back to the active gcloud project,
+# which may be another project.
+PROJECT_ID="${PROJECT_ID:?Set PROJECT_ID, for example PROJECT_ID=your-project-id bash deploy/deploy.sh}"
 
 # Resource names: keep them in step with deploy/release.sh, deploy/teardown.sh,
 # .github/workflows/deploy.yml and docs/labs/lab-05/deployment.md.

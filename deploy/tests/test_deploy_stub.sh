@@ -59,3 +59,10 @@ rm -f "$TMP/calls"; DRY_RUN=1 bash "$ROOT/deploy/deploy.sh" > "$TMP/out" 2>&1
 test ! -e "$TMP/calls"
 grep -q '^\[DRY_RUN\] gcloud run deploy cafe-feedback' "$TMP/out"
 echo 'PASS a dry run only prints the commands'
+
+# PROJECT_ID is required, also for a dry run: no fallback to the active gcloud project.
+rm -f "$TMP/calls"
+if env -u PROJECT_ID bash "$ROOT/deploy/deploy.sh" > "$TMP/out" 2>&1; then echo 'FAIL: expected exit 1 without PROJECT_ID' >&2; exit 1; fi
+if env -u PROJECT_ID DRY_RUN=1 bash "$ROOT/deploy/deploy.sh" > "$TMP/out" 2>&1; then echo 'FAIL: expected exit 1 without PROJECT_ID (dry run)' >&2; exit 1; fi
+test ! -e "$TMP/calls"
+echo 'PASS PROJECT_ID is required'

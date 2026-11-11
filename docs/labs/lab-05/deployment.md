@@ -19,8 +19,8 @@ procedure; the project ID, the URL and the evidence are filled in when #22 and #
 
 ## 2. Environment variables
 
-No variable has a default secret, and none is baked into the image (`docker image inspect` shows only
-`NODE_ENV`, `PORT`, `STATIC_DIR` and `TZ`).
+No variable has a default secret, and no secret is baked into the image (`docker image inspect` shows only
+`APP_COMMIT`, `NODE_ENV`, `PORT`, `STATIC_DIR` and `TZ`).
 
 | Variable | Read by | Purpose | Secret | Where the value comes from |
 |---|---|---|---|---|
@@ -32,6 +32,7 @@ No variable has a default secret, and none is baked into the image (`docker imag
 | `NODE_ENV` | API | `production` turns on the `Secure` cookie flag | No | Image default `production`; `development` in `server/.env` |
 | `STATIC_DIR` | API | Folder of the built web app | No | Image default `/app/client/dist`; unset in development (Vite serves the UI) |
 | `TZ` | Node | Time zone of logs | No | Image default `Asia/Bangkok` |
+| `APP_COMMIT` | API (`GET /api/version`) | Commit the image was built from | No | Build argument (`docker build --build-arg APP_COMMIT=<sha>`), set by `deploy.yml`; `unknown` otherwise |
 
 Templates with placeholders only: `server/.env.example` (development and tests) and `.env.example`
 (compose). `.env` and `.env.*` are in `.gitignore`, except the examples.
@@ -62,7 +63,7 @@ every release.
 
 ## 4. GCP project and resources
 
-Project: `TO_FILL` (Free Trial on one member's personal Gmail, the other member is Editor; #22). Region:
+Project: `cpe334-teamen040` (Free Trial on one member's personal Gmail, the other member is Editor; #22). Region:
 `asia-southeast1`. An alerts-only budget is created before any resource.
 
 | Resource | Name | Notes |
@@ -113,4 +114,6 @@ Then, on GitHub:
    database is not rolled back, so migrations stay additive.
 6. **Cost:** Cloud Run scales to zero. Cloud SQL is billed every hour, so stop it when it is idle
    (`gcloud sql instances patch cafe-feedback-pg --activation-policy=NEVER`, then `ALWAYS` to restart it).
-   Run `deploy/teardown.sh` after grading ends.
+   Run `deploy/teardown.sh` after grading ends (dry run first). It deletes every resource above, including
+   the deployer service account and the Workload Identity pool, skips what is already gone, and fails if
+   the Cloud SQL instance still exists afterwards, so a failed delete cannot keep billing unnoticed.
