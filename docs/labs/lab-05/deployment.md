@@ -1,7 +1,6 @@
 # Deployment: Café Feedback on Google Cloud (Lab 5)
 
-Status: **draft**. Sections 1 to 3 are checked locally. Sections 4 and 5 give the planned names and
-procedure; the project ID, the URL and the evidence are filled in when #22 and #26 to #29 are done.
+Status: final. Deployed at https://cafe-feedback-771479164263.asia-southeast1.run.app, release 33bf12e.
 
 ## 1. Stack and changes from the reference
 
@@ -65,6 +64,8 @@ every release.
 
 Project: `cpe334-teamen040` (Free Trial on one member's personal Gmail, the other member is Editor; #22). Region:
 `asia-southeast1`. An alerts-only budget is created before any resource.
+
+URL: https://cafe-feedback-771479164263.asia-southeast1.run.app
 
 | Resource | Name | Notes |
 |---|---|---|
