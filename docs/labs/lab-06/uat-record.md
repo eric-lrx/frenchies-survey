@@ -20,7 +20,7 @@ Partner agreement: date, channel and link to the message: _to fill_.
 |---|---|---|
 | Sprint 1 baseline | `v0.1.0` = `1839e27` | tag, Project Deliverable 1 |
 | Tested release (handed to the UAT Team) | `33bf12e` | `/api/version`, release PR #36, Deploy run 42956016512 |
-| Cloud Run revision tested | _fill on the handoff day_ | `gcloud run services describe cafe-feedback --region asia-southeast1 --project cpe334-teamen040 --format='value(status.latestReadyRevisionName)'` |
+| Cloud Run revision tested | `cafe-feedback-00003-g6p` (read by Marc on 2026-11-19) | `gcloud run services describe cafe-feedback --region asia-southeast1 --project cpe334-teamen040 --format='value(status.latestReadyRevisionName)'` |
 | Defective commit(s) | _per accepted defect, or "none"_ | |
 | Regression test commit (RED) | | |
 | Fix commit (GREEN) | | |

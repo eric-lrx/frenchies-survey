@@ -11,7 +11,7 @@ unclear, report it as a finding (it is a defect of this plan).
 | Application | Café Feedback: a café owner creates surveys, customers answer them once, the owner reads the summary |
 | Sprint 1 baseline | Tag `v0.1.0`, commit `1839e27` (Project Deliverable 1, 8 Nov 2026) |
 | Tested release | `main` at `33bf12e` (release PR #36, 11 Nov 2026) |
-| Deployed revision | Cloud Run service `cafe-feedback`, region `asia-southeast1`, revision: _filled in by the Product Team on the day of the handoff_ |
+| Deployed revision | Cloud Run service `cafe-feedback`, region `asia-southeast1`, revision `cafe-feedback-00003-g6p` (read with `gcloud run services describe` on 2026-11-19). If the Product Team deploys a correction, the new revision is announced to the UAT Team first |
 | URL | https://cafe-feedback-771479164263.asia-southeast1.run.app |
 | Version check | Open `/api/version`: it must show `{"data":{"commit":"33bf12e8b9186c964e8dc176fcffb8097e3f6c99"}}`. If it shows anything else, stop and tell the Product Team: you are not on the tested release |
 | Repository | https://github.com/eric-lrx/frenchies-survey |
