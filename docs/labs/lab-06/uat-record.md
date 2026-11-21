@@ -9,10 +9,10 @@ such.
 | Role | Team | Students | Application |
 |---|---|---|---|
 | Product Team (our app) | Frenchies | Eric Le Roux (69540460030), Marc Stricker (69540460019) | Café Feedback |
-| UAT Team for our app | _to fill_ | _names and IDs_ | |
-| Product Team we test | _to fill_ | _names and IDs_ | _their app_ |
+| UAT Team for our app | LendLab (EN-051_P2) | Punyawat Sookarsa (67070503468), Chanaphath Malilert (67070503462) | |
+| Product Team we test | LendLab (EN-051_P2) | Punyawat Sookarsa (67070503468), Chanaphath Malilert (67070503462) | LendLab, equipment lending for the CPE labs: https://github.com/PakPak27/lendlab, tested commit `1bc5b4f` (revision `s07a7184d-00005-mjz`), https://s07a7184d-4d7hbszvwq-as.a.run.app |
 
-Partner agreement: date, channel and link to the message: _to fill_.
+Partner agreement: 2026-11-21, Instagram direct messages (screenshot in the report). Their cases: `docs/labs/lab06/uat-cases.md` v1.0 on branch `docs/lab6-uat-cases` of their repository, 5 cases run in order. Split: Eric UAT-01 and UAT-03, Marc UAT-02, UAT-04 and UAT-05.
 
 ## 2. Version table
 
