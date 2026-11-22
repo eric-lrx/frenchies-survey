@@ -8,6 +8,14 @@ import { surveysRouter } from "./routes/surveys.js";
 import { openSurveysRouter } from "./routes/openSurveys.js";
 import { responsesRouter } from "./routes/responses.js";
 
+// #46 (UAT-04 step 7): pages and answers that depend on the signed-in user must not be
+// kept by the browser, otherwise Back after "Sign out" can show the previous user's data.
+function noStore(_req: Request, res: Response, next: NextFunction) {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.set("Pragma", "no-cache");
+  next();
+}
+
 export interface AppOptions {
   // Folder of the built React app (client/dist). Set in the container only; in development
   // the Vite server serves the UI and forwards /api here (Lab 5, #23).
@@ -56,6 +64,8 @@ export function createApp(options: AppOptions = {}) {
     }
   });
 
+  // Protected API routes only; /api/health, /api/version and /api/ready stay public.
+  app.use(["/api/auth", "/api/surveys", "/api/open-surveys", "/api/responses"], noStore);
   app.use("/api/auth", authRouter);
   app.use("/api/surveys", surveysRouter);
   app.use("/api/open-surveys", openSurveysRouter);
@@ -72,8 +82,9 @@ export function createApp(options: AppOptions = {}) {
     });
     app.use(express.static(staticDir, { index: false }));
     // Any other GET outside /api is a client-side route: answer with the app shell.
-    app.get(/^\/(?!api(\/|$)).*/, (_req, res) => {
-      res.set("Cache-Control", "no-cache");
+    // no-store (#46): the page must not come back from the browser's back/forward cache
+    // after sign-out. The hashed files under /assets keep their long cache.
+    app.get(/^\/(?!api(\/|$)).*/, noStore, (_req, res) => {
       res.sendFile(join(staticDir, "index.html"));
     });
   }
