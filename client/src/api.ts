@@ -132,7 +132,7 @@ export interface ResponseDetail {
 }
 
 export type QuestionSummary =
-  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5", number> }
+  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10", number> }
   | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] };
 
 export interface SurveySummary {

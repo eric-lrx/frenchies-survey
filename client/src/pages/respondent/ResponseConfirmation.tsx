@@ -50,7 +50,7 @@ export default function ResponseConfirmation() {
         {response.answers.map((a) => (
           <div key={a.questionId}>
             <dt>{a.questionText}</dt>
-            <dd>{a.type === "RATING" ? `${a.ratingValue} / 5` : a.optionLabel}</dd>
+            <dd>{a.type === "RATING" ? `${a.ratingValue} / 10` : a.optionLabel}</dd>
           </div>
         ))}
       </dl>

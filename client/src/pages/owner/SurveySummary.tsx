@@ -6,7 +6,7 @@ import { Loading, LoadError } from "../../components/Feedback.js";
 
 // F-07 summary screen (contract section 3). Every figure is written as text next to its bar,
 // so nothing depends on colour or bar length alone (NFR-07).
-const RATING_VALUES = ["1", "2", "3", "4", "5"] as const;
+const RATING_VALUES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"] as const;
 
 const percent = (count: number, total: number) => (total === 0 ? 0 : Math.round((count / total) * 100));
 
@@ -73,7 +73,7 @@ function RatingResult({ q }: { q: Extract<QuestionSummary, { type: "RATING" }> }
         {q.text}
       </h2>
       <p className="mb-2">
-        Average: <strong>{q.average === null ? "—" : `${q.average.toFixed(1)} / 5`}</strong>
+        Average: <strong>{q.average === null ? "—" : `${q.average.toFixed(1)} / 10`}</strong>
       </p>
       <table className="table table-sm summary-table mb-0" aria-labelledby={`q${q.questionId}-title`}>
         <thead>

@@ -18,7 +18,7 @@ export interface SummaryInput {
 }
 
 export type QuestionSummary =
-  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5", number> }
+  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10", number> }
   | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] };
 
 // round(10 × sum ÷ count) ÷ 10, half up, from integers; null when there is no answer.
@@ -33,7 +33,7 @@ export function computeSummary({ questions, ratingCounts, optionCounts }: Summar
     .sort((a, b) => a.position - b.position)
     .map((q) => {
       if (q.type === "RATING") {
-        const distribution = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
+        const distribution = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0 };
         let sum = 0;
         let count = 0;
         for (const row of ratingCounts) {

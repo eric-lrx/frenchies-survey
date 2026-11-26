@@ -60,8 +60,8 @@ describe("UNIT-02 validateAnswers", () => {
     { id: 12, type: "CHOICE" as const, optionIds: [21, 22] },
   ];
 
-  it("accepts ratings 1 and 5 and an option of the question, in any order", () => {
-    for (const ratingValue of [1, 5]) {
+  it("accepts ratings 1 and 10 and an option of the question, in any order", () => {
+    for (const ratingValue of [1, 10]) {
       expect(validateAnswers(questions, { answers: [{ questionId: 12, optionId: 22 }, { questionId: 11, ratingValue }] })).toEqual({
         ok: true,
         value: [
@@ -72,15 +72,21 @@ describe("UNIT-02 validateAnswers", () => {
     }
   });
 
+  it("accepts ratings 6, 7, 8, 9 (new 1-10 scale)", () => {
+    for (const ratingValue of [6, 7, 8, 9]) {
+      expect(validateAnswers(questions, { answers: [{ questionId: 11, ratingValue }, { questionId: 12, optionId: 21 }] })).toMatchObject({ ok: true });
+    }
+  });
+
   const cases: [string, unknown, string, string][] = [
     ["a missing answer", { answers: [{ questionId: 11, ratingValue: 3 }] }, "answers[12]", "Please answer this question"],
     ["answers that are not a list", { answers: "4" }, "answers[11]", "Please answer this question"],
     ["an unknown question", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12, optionId: 21 }, { questionId: 99, ratingValue: 3 }] }, "answers", "Unknown question"],
     ["two answers to one question", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 11, ratingValue: 4 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Answer once"],
-    ["rating 0", { answers: [{ questionId: 11, ratingValue: 0 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
-    ["rating 6", { answers: [{ questionId: 11, ratingValue: 6 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
-    ["rating 3.5", { answers: [{ questionId: 11, ratingValue: 3.5 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
-    ["rating as text", { answers: [{ questionId: 11, ratingValue: "4" }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 5"],
+    ["rating 0", { answers: [{ questionId: 11, ratingValue: 0 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 10"],
+    ["rating 11", { answers: [{ questionId: 11, ratingValue: 11 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 10"],
+    ["rating 3.5", { answers: [{ questionId: 11, ratingValue: 3.5 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 10"],
+    ["rating as text", { answers: [{ questionId: 11, ratingValue: "4" }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Choose a rating from 1 to 10"],
     ["an option of another question", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12, optionId: 99 }] }, "answers[12]", "Choose one of the options"],
     ["a choice without option", { answers: [{ questionId: 11, ratingValue: 3 }, { questionId: 12 }] }, "answers[12]", "Choose one of the options"],
     ["a rating answer with optionId", { answers: [{ questionId: 11, optionId: 21 }, { questionId: 12, optionId: 21 }] }, "answers[11]", "Wrong answer type for this question"],
@@ -101,7 +107,7 @@ describe("UNIT-03 computeSummary", () => {
     { id: 2, position: 2, text: "Pick one", type: "CHOICE" as const, options: [{ id: 10, position: 1, label: "A" }, { id: 11, position: 2, label: "B" }] },
   ];
   const ratingsOf = (values: number[]) =>
-    [1, 2, 3, 4, 5].map((value) => ({ questionId: 1, value, count: values.filter((v) => v === value).length })).filter((r) => r.count > 0);
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => ({ questionId: 1, value, count: values.filter((v) => v === value).length })).filter((r) => r.count > 0);
 
   it.each([
     [[4, 5], 4.5],
@@ -114,10 +120,10 @@ describe("UNIT-03 computeSummary", () => {
     expect(result[0]).toMatchObject({ type: "RATING", average: expected });
   });
 
-  it("always lists the five rating values and every option, with zero where nobody chose them", () => {
+  it("always lists the ten rating values and every option, with zero where nobody chose them", () => {
     const result = computeSummary({ questions, responseCount: 1, ratingCounts: [{ questionId: 1, value: 2, count: 1 }], optionCounts: [{ optionId: 11, count: 1 }] });
     expect(result).toEqual([
-      { questionId: 1, position: 1, text: "Rate us", type: "RATING", average: 2, distribution: { "1": 0, "2": 1, "3": 0, "4": 0, "5": 0 } },
+      { questionId: 1, position: 1, text: "Rate us", type: "RATING", average: 2, distribution: { "1": 0, "2": 1, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0 } },
       { questionId: 2, position: 2, text: "Pick one", type: "CHOICE", options: [{ optionId: 10, label: "A", count: 0 }, { optionId: 11, label: "B", count: 1 }] },
     ]);
   });

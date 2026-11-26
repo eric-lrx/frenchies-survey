@@ -120,8 +120,8 @@ export function validateAnswers(questions: QuestionRule[], body: unknown): Valid
     const { ratingValue, optionId } = answer;
     if (q.type === "RATING") {
       if (optionId !== undefined && optionId !== null) fields[key] = "Wrong answer type for this question";
-      else if (typeof ratingValue !== "number" || !Number.isInteger(ratingValue) || ratingValue < 1 || ratingValue > 5) {
-        fields[key] = "Choose a rating from 1 to 5";
+      else if (typeof ratingValue !== "number" || !Number.isInteger(ratingValue) || ratingValue < 1 || ratingValue > 10) {
+        fields[key] = "Choose a rating from 1 to 10";
       } else value.push({ questionId: q.id, ratingValue, optionId: null });
     } else {
       if (ratingValue !== undefined && ratingValue !== null) fields[key] = "Wrong answer type for this question";
