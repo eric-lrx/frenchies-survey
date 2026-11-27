@@ -53,7 +53,7 @@ describe("GET /api/surveys/:id/summary", () => {
           text: "How would you rate the new pastries?",
           type: "RATING",
           average: 4.3,
-          distribution: { "1": 0, "2": 0, "3": 0, "4": 2, "5": 1 },
+          distribution: { "1": 0, "2": 0, "3": 0, "4": 2, "5": 1, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0 },
         },
         {
           questionId: choice.id,
@@ -84,7 +84,7 @@ describe("GET /api/surveys/:id/summary", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.responseCount).toBe(0);
-    expect(res.body.data.questions[0]).toMatchObject({ average: null, distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 } });
+    expect(res.body.data.questions[0]).toMatchObject({ average: null, distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0 } });
     expect(res.body.data.questions[1].options.map((o: { count: number }) => o.count)).toEqual([0, 0, 0]);
   });
 
