@@ -18,7 +18,7 @@ function renderSummary() {
 }
 
 const QUESTIONS_EMPTY = [
-  { questionId: 21, position: 1, text: "How would you rate the new pastries?", type: "RATING", average: null, distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 } },
+  { questionId: 21, position: 1, text: "How would you rate the new pastries?", type: "RATING", average: null, distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0 } },
   { questionId: 22, position: 2, text: "Which drink did you order?", type: "CHOICE", options: [{ optionId: 5, label: "Latte", count: 0 }, { optionId: 6, label: "Espresso", count: 0 }] },
 ];
 
@@ -38,7 +38,7 @@ describe("Summary screen", () => {
     expect(screen.getByText("How would you rate the new pastries?")).toBeInTheDocument();
   });
 
-  it("UI-04 writes every figure as text: the average out of 5, each rating count, each option count and percentage", async () => {
+  it("UI-04 writes every figure as text: the average out of 10, each rating count, each option count and percentage", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       json({
         data: {
@@ -47,7 +47,7 @@ describe("Summary screen", () => {
           status: "PUBLISHED",
           responseCount: 3,
           questions: [
-            { ...QUESTIONS_EMPTY[0], average: 4.3, distribution: { "1": 0, "2": 0, "3": 0, "4": 2, "5": 1 } },
+            { ...QUESTIONS_EMPTY[0], average: 4.3, distribution: { "1": 0, "2": 0, "3": 0, "4": 2, "5": 1, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0 } },
             { ...QUESTIONS_EMPTY[1], options: [{ optionId: 5, label: "Latte", count: 2 }, { optionId: 6, label: "Espresso", count: 1 }] },
           ],
         },
@@ -56,10 +56,10 @@ describe("Summary screen", () => {
     renderSummary();
 
     expect(await screen.findByText("3 responses")).toBeInTheDocument();
-    expect(screen.getByText("4.3 / 5")).toBeInTheDocument();
+    expect(screen.getByText("4.3 / 10")).toBeInTheDocument();
 
     const ratingRows = within(screen.getByRole("table", { name: "How would you rate the new pastries?" })).getAllByRole("row");
-    expect(ratingRows.map((r) => r.textContent)).toEqual(["RatingResponses", "10", "20", "30", "42", "51"]);
+    expect(ratingRows.map((r) => r.textContent)).toEqual(["RatingResponses", "10", "20", "30", "42", "51", "60", "70", "80", "90", "100"]);
 
     const choiceRows = within(screen.getByRole("table", { name: "Which drink did you order?" })).getAllByRole("row");
     expect(choiceRows.map((r) => r.textContent)).toEqual(["OptionResponsesShare", "Latte267%", "Espresso133%"]);
