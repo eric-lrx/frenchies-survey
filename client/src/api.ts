@@ -177,6 +177,8 @@ export const api = {
   listSurveys: () => request<SurveyListItem[]>("GET", "/api/surveys"),
   createSurvey: (body: NewSurveyBody) => request<SurveyDetail>("POST", "/api/surveys", body),
   getSurvey: (id: number) => request<SurveyDetail>("GET", `/api/surveys/${id}`),
+  updateSurvey: (id: number, body: NewSurveyBody) => request<SurveyDetail>("PUT", `/api/surveys/${id}`, body),
+  deleteSurvey: (id: number) => request<void>("DELETE", `/api/surveys/${id}`),
   publishSurvey: (id: number) =>
     request<{ id: number; status: SurveyStatus; publishedAt: string }>("POST", `/api/surveys/${id}/publish`),
   listOpenSurveys: () => request<OpenSurvey[]>("GET", "/api/open-surveys"),

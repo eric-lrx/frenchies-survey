@@ -7,6 +7,7 @@ import MySurveys from "./pages/owner/MySurveys.js";
 import NewSurvey from "./pages/owner/NewSurvey.js";
 import SurveyDetail from "./pages/owner/SurveyDetail.js";
 import SurveySummary from "./pages/owner/SurveySummary.js";
+import EditSurvey from "./pages/owner/EditSurvey.js";
 import SurveyResponses from "./pages/owner/SurveyResponses.js";
 import OpenSurveys from "./pages/respondent/OpenSurveys.js";
 import MyResponses from "./pages/respondent/MyResponses.js";
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/owner/surveys" element={<MySurveys />} />
           <Route path="/owner/surveys/new" element={<NewSurvey />} />
           <Route path="/owner/surveys/:id" element={<SurveyDetail />} />
+          <Route path="/owner/surveys/:id/edit" element={<EditSurvey />} />
           <Route path="/owner/surveys/:id/summary" element={<SurveySummary />} />
           <Route path="/owner/surveys/:id/responses" element={<SurveyResponses />} />
         </Route>

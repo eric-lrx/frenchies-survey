@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, ApiError, formatDateTime, type SurveyDetail as Survey } from "../../api.js";
 import StatusBadge from "../../components/StatusBadge.js";
 import { Loading, LoadError } from "../../components/Feedback.js";
@@ -12,9 +12,11 @@ export default function SurveyDetail() {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
-  const [confirming, setConfirming] = useState<"publish" | "close" | null>(null);
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState<"publish" | "close" | "delete" | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [notice, setNotice] = useState("");
   const [publishError, setPublishError] = useState("");
   const publishButton = useRef<HTMLButtonElement>(null);
@@ -59,6 +61,21 @@ export default function SurveyDetail() {
     }
   }
 
+  async function deleteSurvey() {
+    if (!survey || deleting) return;
+    setDeleting(true);
+    setPublishError("");
+    try {
+      await api.deleteSurvey(survey.id);
+      navigate("/owner/surveys");
+    } catch (err) {
+      setPublishError(err instanceof ApiError ? err.message : "The survey could not be deleted.");
+      closeDialog();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   async function closeSurvey() {
     if (!survey || closing) return;
     setClosing(true);
@@ -99,9 +116,17 @@ export default function SurveyDetail() {
         </h1>
         <StatusBadge status={survey.status} />
         {survey.status === "DRAFT" && (
-          <button ref={publishButton} type="button" className="btn btn-cafe btn-sm ms-auto" onClick={() => setConfirming("publish")}>
-            Publish
-          </button>
+          <>
+            <Link to={`/owner/surveys/${survey.id}/edit`} className="btn btn-outline-secondary btn-sm ms-auto">
+              Edit
+            </Link>
+            <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => setConfirming("delete")}>
+              Delete
+            </button>
+            <button ref={publishButton} type="button" className="btn btn-cafe btn-sm" onClick={() => setConfirming("publish")}>
+              Publish
+            </button>
+          </>
         )}
         {survey.status !== "DRAFT" && (
           <>
@@ -171,6 +196,16 @@ export default function SurveyDetail() {
           confirmLabel="Close"
           busy={closing}
           onConfirm={closeSurvey}
+          onCancel={closeDialog}
+        />
+      )}
+      {confirming === "delete" && (
+        <ConfirmDialog
+          title="Delete this survey?"
+          message="This will permanently delete the survey and all its questions. This cannot be undone."
+          confirmLabel="Delete"
+          busy={deleting}
+          onConfirm={deleteSurvey}
           onCancel={closeDialog}
         />
       )}
