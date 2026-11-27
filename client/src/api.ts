@@ -52,7 +52,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 }
 
 export type SurveyStatus = "DRAFT" | "PUBLISHED" | "CLOSED";
-export type QuestionType = "RATING" | "CHOICE";
+export type QuestionType = "RATING" | "CHOICE" | "TEXT";
 
 export interface SurveyListItem {
   id: number;
@@ -112,7 +112,7 @@ export interface OpenSurveyDetail {
   questions: Question[];
 }
 
-export type AnswerBody = { questionId: number; ratingValue: number } | { questionId: number; optionId: number };
+export type AnswerBody = { questionId: number; ratingValue: number } | { questionId: number; optionId: number } | { questionId: number; textValue: string };
 
 export interface SubmittedResponse {
   id: number;
@@ -128,6 +128,7 @@ export interface ResponseDetail {
   answers: (
     | { questionId: number; questionText: string; type: "RATING"; ratingValue: number }
     | { questionId: number; questionText: string; type: "CHOICE"; optionId: number; optionLabel: string }
+    | { questionId: number; questionText: string; type: "TEXT"; textValue: string }
   )[];
 }
 
@@ -147,6 +148,7 @@ export interface IndividualResponse {
   answers: (
     | { questionId: number; ratingValue: number }
     | { questionId: number; optionId: number; optionLabel: string }
+    | { questionId: number; textValue: string }
   )[];
 }
 
@@ -158,8 +160,9 @@ export interface SurveyResponses {
 }
 
 export type QuestionSummary =
-  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5", number> }
-  | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] };
+  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<string, number> }
+  | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] }
+  | { questionId: number; position: number; text: string; type: "TEXT"; answerCount: number };
 
 export interface SurveySummary {
   surveyId: number;

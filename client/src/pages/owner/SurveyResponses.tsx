@@ -66,25 +66,20 @@ export default function SurveyResponses() {
               </tr>
             </thead>
             <tbody>
-              {data.responses.map((r) => {
-                const answerMap = new Map(
-                  r.answers.map((a) => ["ratingValue" in a ? [a.questionId, String(a.ratingValue)] : [a.questionId, a.optionLabel ?? ""]]).map(([k, v]) => [k, v]),
-                );
-                return (
-                  <tr key={r.id}>
-                    <td>{r.respondentName}</td>
-                    <td className="text-nowrap">{formatDateTime(r.submittedAt)}</td>
-                    {data.questions.map((q) => {
-                      const a = r.answers.find((a) => a.questionId === q.id);
-                      return (
-                        <td key={q.id}>
-                          {a && "ratingValue" in a ? a.ratingValue : a && "optionLabel" in a ? a.optionLabel : "-"}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
+              {data.responses.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.respondentName}</td>
+                  <td className="text-nowrap">{formatDateTime(r.submittedAt)}</td>
+                  {data.questions.map((q) => {
+                    const a = r.answers.find((a) => a.questionId === q.id);
+                    if (!a) return <td key={q.id}>-</td>;
+                    if ("ratingValue" in a) return <td key={q.id}>{a.ratingValue}</td>;
+                    if ("optionLabel" in a) return <td key={q.id}>{a.optionLabel}</td>;
+                    if ("textValue" in a) return <td key={q.id}>{a.textValue}</td>;
+                    return <td key={q.id}>-</td>;
+                  })}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

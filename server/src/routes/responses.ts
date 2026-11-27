@@ -55,6 +55,7 @@ responsesRouter.get("/:id", async (req, res, next) => {
                   questionId: true,
                   ratingValue: true,
                   optionId: true,
+                  textValue: true,
                   question: { select: { text: true, type: true } },
                   option: { select: { label: true } },
                 },
@@ -74,7 +75,9 @@ responsesRouter.get("/:id", async (req, res, next) => {
         answers: response.answers.map((a) =>
           a.question.type === "RATING"
             ? { questionId: a.questionId, questionText: a.question.text, type: "RATING", ratingValue: a.ratingValue }
-            : { questionId: a.questionId, questionText: a.question.text, type: "CHOICE", optionId: a.optionId, optionLabel: a.option?.label },
+            : a.question.type === "CHOICE"
+              ? { questionId: a.questionId, questionText: a.question.text, type: "CHOICE", optionId: a.optionId, optionLabel: a.option?.label }
+              : { questionId: a.questionId, questionText: a.question.text, type: "TEXT", textValue: a.textValue },
         ),
       },
     });

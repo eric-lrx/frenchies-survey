@@ -1,7 +1,7 @@
 // F-03 survey validation (contract section 1, BR-12, FR-04, FR-05). A pure function, so the
 // rules are unit-tested directly (UNIT-01) and the route only stores what it returns.
 
-export type QuestionType = "RATING" | "CHOICE";
+export type QuestionType = "RATING" | "CHOICE" | "TEXT";
 
 export interface SurveyInput {
   title: string;
@@ -40,15 +40,15 @@ export function validateSurveyInput(body: unknown): Validation<SurveyInput> {
       const text = isString(q.text) ? q.text.trim() : "";
       if (text.length < 3 || text.length > 200) fields[`${key}.text`] = "Must be 3 to 200 characters";
 
-      if (q.type !== "RATING" && q.type !== "CHOICE") {
-        fields[`${key}.type`] = "Choose rating or choice";
+      if (q.type !== "RATING" && q.type !== "CHOICE" && q.type !== "TEXT") {
+        fields[`${key}.type`] = "Choose rating, choice or text";
         return;
       }
 
       const options: string[] = [];
-      if (q.type === "RATING") {
+      if (q.type === "RATING" || q.type === "TEXT") {
         if (q.options !== undefined && !(Array.isArray(q.options) && q.options.length === 0)) {
-          fields[`${key}.options`] = "A rating question has no options";
+          fields[`${key}.options`] = q.type === "RATING" ? "A rating question has no options" : "A text question has no options";
         }
       } else if (!Array.isArray(q.options) || q.options.length < 2 || q.options.length > 6) {
         fields[`${key}.options`] = "A choice question needs 2 to 6 options";
@@ -85,6 +85,7 @@ export interface AnswerInput {
   questionId: number;
   ratingValue: number | null;
   optionId: number | null;
+  textValue: string | null;
 }
 
 export function validateAnswers(questions: QuestionRule[], body: unknown): Validation<AnswerInput[]> {
@@ -117,16 +118,26 @@ export function validateAnswers(questions: QuestionRule[], body: unknown): Valid
       fields[key] = "Please answer this question";
       continue;
     }
-    const { ratingValue, optionId } = answer;
+    const { ratingValue, optionId, textValue } = answer;
     if (q.type === "RATING") {
       if (optionId !== undefined && optionId !== null) fields[key] = "Wrong answer type for this question";
       else if (typeof ratingValue !== "number" || !Number.isInteger(ratingValue) || ratingValue < 1 || ratingValue > 5) {
         fields[key] = "Choose a rating from 1 to 5";
-      } else value.push({ questionId: q.id, ratingValue, optionId: null });
-    } else {
+      } else value.push({ questionId: q.id, ratingValue, optionId: null, textValue: null });
+    } else if (q.type === "CHOICE") {
       if (ratingValue !== undefined && ratingValue !== null) fields[key] = "Wrong answer type for this question";
       else if (typeof optionId !== "number" || !q.optionIds.includes(optionId)) fields[key] = "Choose one of the options";
-      else value.push({ questionId: q.id, ratingValue: null, optionId });
+      else value.push({ questionId: q.id, ratingValue: null, optionId, textValue: null });
+    } else {
+      if ((ratingValue !== undefined && ratingValue !== null) || (optionId !== undefined && optionId !== null)) {
+        fields[key] = "Wrong answer type for this question";
+      } else if (typeof textValue !== "string" || textValue.trim().length === 0) {
+        fields[key] = "Please enter a text answer";
+      } else if (textValue.trim().length > 1000) {
+        fields[key] = "Must be 1000 characters or fewer";
+      } else {
+        value.push({ questionId: q.id, ratingValue: null, optionId: null, textValue: textValue.trim() });
+      }
     }
   }
 

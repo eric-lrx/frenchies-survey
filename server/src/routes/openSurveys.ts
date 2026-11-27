@@ -121,7 +121,7 @@ openSurveysRouter.post("/:id/responses", async (req, res, next) => {
       if (current.status !== "PUBLISHED") throw closed();
       return tx.response.create({
         data: { surveyId: survey.id, respondentId, answers: { create: result.value } },
-        include: { answers: { select: { questionId: true, ratingValue: true, optionId: true } } },
+        include: { answers: { select: { questionId: true, ratingValue: true, optionId: true, textValue: true } } },
       });
     });
 
@@ -133,7 +133,13 @@ openSurveysRouter.post("/:id/responses", async (req, res, next) => {
         submittedAt: response.submittedAt,
         answers: response.answers
           .sort((a, b) => order.get(a.questionId)! - order.get(b.questionId)!)
-          .map((a) => (a.ratingValue !== null ? { questionId: a.questionId, ratingValue: a.ratingValue } : { questionId: a.questionId, optionId: a.optionId })),
+          .map((a) =>
+            a.ratingValue !== null
+              ? { questionId: a.questionId, ratingValue: a.ratingValue }
+              : a.optionId !== null
+                ? { questionId: a.questionId, optionId: a.optionId }
+                : { questionId: a.questionId, textValue: a.textValue },
+          ),
       },
     });
   } catch (err) {

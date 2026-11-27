@@ -189,6 +189,7 @@ export default function EditSurvey() {
                     <select id={`q${q.key}-type`} className="form-select" value={q.type} onChange={(e) => changeType(i, e.target.value as QuestionType)}>
                       <option value="RATING">Rating (1 to 5)</option>
                       <option value="CHOICE">Single choice</option>
+                      <option value="TEXT">Free text</option>
                     </select>
                   </div>
                 </div>

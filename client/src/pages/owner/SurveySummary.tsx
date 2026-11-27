@@ -58,7 +58,7 @@ export default function SurveySummary() {
 
       {summary.questions.map((q) => (
         <div key={q.questionId} className="cf-panel mb-3">
-          {q.type === "RATING" ? <RatingResult q={q} /> : <ChoiceResult q={q} total={total} />}
+          {q.type === "RATING" ? <RatingResult q={q} /> : q.type === "CHOICE" ? <ChoiceResult q={q} total={total} /> : <TextResult q={q} />}
         </div>
       ))}
     </section>
@@ -94,6 +94,15 @@ function RatingResult({ q }: { q: Extract<QuestionSummary, { type: "RATING" }> }
           ))}
         </tbody>
       </table>
+    </>
+  );
+}
+
+function TextResult({ q }: { q: Extract<QuestionSummary, { type: "TEXT" }> }) {
+  return (
+    <>
+      <h2 className="h6">{q.text}</h2>
+      <p className="mb-0">{q.answerCount === 0 ? "No answers yet" : `${q.answerCount} text answer${q.answerCount !== 1 ? "s" : ""}`}</p>
     </>
   );
 }

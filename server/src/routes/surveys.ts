@@ -252,7 +252,7 @@ surveysRouter.get("/:id/responses", async (req, res, next) => {
         respondent: { select: { id: true, name: true, email: true } },
         answers: {
           orderBy: { question: { position: "asc" } },
-          select: { questionId: true, ratingValue: true, optionId: true, option: { select: { label: true } } },
+          select: { questionId: true, ratingValue: true, optionId: true, textValue: true, option: { select: { label: true } } },
         },
       },
     });
@@ -271,7 +271,8 @@ surveysRouter.get("/:id/responses", async (req, res, next) => {
             const a = answerMap.get(q.id);
             if (!a) return "";
             if (q.type === "RATING") return String(a.ratingValue ?? "");
-            return a.option?.label ?? "";
+            if (q.type === "CHOICE") return a.option?.label ?? "";
+            return a.textValue ?? "";
           }),
         ];
       });
@@ -297,7 +298,9 @@ surveysRouter.get("/:id/responses", async (req, res, next) => {
           answers: r.answers.map((a) =>
             a.ratingValue !== null
               ? { questionId: a.questionId, ratingValue: a.ratingValue }
-              : { questionId: a.questionId, optionId: a.optionId, optionLabel: a.option?.label },
+              : a.optionId !== null
+                ? { questionId: a.questionId, optionId: a.optionId, optionLabel: a.option?.label }
+                : { questionId: a.questionId, textValue: a.textValue },
           ),
         })),
       },
