@@ -30,7 +30,7 @@ describe("UNIT-01 validateSurveyInput", () => {
     ["no question list", { title: "Menu" }, "questions", "Add 1 to 20 questions"],
     ["21 questions", { title: "Menu", questions: Array.from({ length: 21 }, () => rating()) }, "questions", "Add 1 to 20 questions"],
     ["a question text of 2 characters", { title: "Menu", questions: [rating("ab")] }, "questions[0].text", "Must be 3 to 200 characters"],
-    ["an unknown type", { title: "Menu", questions: [{ text: "Tell us", type: "TEXT" }] }, "questions[0].type", "Choose rating or choice"],
+    ["an unknown type", { title: "Menu", questions: [{ text: "Tell us", type: "PARAGRAPH" }] }, "questions[0].type", "Choose rating, choice or text"],
     ["options on a rating question", { title: "Menu", questions: [{ ...rating(), options: ["Good"] }] }, "questions[0].options", "A rating question has no options"],
     ["a choice with 1 option", { title: "Menu", questions: [choice(["A"])] }, "questions[0].options", "A choice question needs 2 to 6 options"],
     ["a choice with 7 options", { title: "Menu", questions: [choice(["A", "B", "C", "D", "E", "F", "G"])] }, "questions[0].options", "A choice question needs 2 to 6 options"],
@@ -65,8 +65,8 @@ describe("UNIT-02 validateAnswers", () => {
       expect(validateAnswers(questions, { answers: [{ questionId: 12, optionId: 22 }, { questionId: 11, ratingValue }] })).toEqual({
         ok: true,
         value: [
-          { questionId: 11, ratingValue, optionId: null },
-          { questionId: 12, ratingValue: null, optionId: 22 },
+          { questionId: 11, ratingValue, optionId: null, textValue: null },
+          { questionId: 12, ratingValue: null, optionId: 22, textValue: null },
         ],
       });
     }

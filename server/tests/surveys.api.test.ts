@@ -65,7 +65,7 @@ describe("POST /api/surveys", () => {
     ["a choice question with 1 option", { ...VALID_SURVEY_BODY, questions: [{ text: "Pick one", type: "CHOICE", options: ["Latte"] }] }, "questions[0].options"],
     ["a choice question with 7 options", { ...VALID_SURVEY_BODY, questions: [{ text: "Pick one", type: "CHOICE", options: ["A", "B", "C", "D", "E", "F", "G"] }] }, "questions[0].options"],
     ["duplicate options ignoring case", { ...VALID_SURVEY_BODY, questions: [{ text: "Pick one", type: "CHOICE", options: ["Latte", "latte"] }] }, "questions[0].options"],
-    ["an unknown question type", { ...VALID_SURVEY_BODY, questions: [{ text: "Tell us", type: "TEXT" }] }, "questions[0].type"],
+    ["an unknown question type", { ...VALID_SURVEY_BODY, questions: [{ text: "Tell us", type: "PARAGRAPH" }] }, "questions[0].type"],
   ];
 
   it.each(invalidCases)("TEST-F03-02 rejects %s with 400 and the matching field, storing nothing", async (_label, body, field) => {
