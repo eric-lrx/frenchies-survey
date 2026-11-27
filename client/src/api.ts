@@ -159,6 +159,7 @@ export const api = {
     request<SubmittedResponse>("POST", `/api/open-surveys/${surveyId}/responses`, { answers }),
   getResponse: (id: number) => request<ResponseDetail>("GET", `/api/responses/${id}`),
   getSummary: (id: number) => request<SurveySummary>("GET", `/api/surveys/${id}/summary`),
+  duplicateSurvey: (id: number) => request<SurveyDetail>("POST", `/api/surveys/${id}/duplicate`),
 };
 
 export const STATUS_LABELS: Record<SurveyStatus, string> = {

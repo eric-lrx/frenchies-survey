@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, ApiError, formatDateTime, type SurveyDetail as Survey } from "../../api.js";
 import StatusBadge from "../../components/StatusBadge.js";
 import { Loading, LoadError } from "../../components/Feedback.js";
@@ -9,11 +9,13 @@ import ConfirmDialog from "../../components/ConfirmDialog.js";
 // to the results (F-07).
 export default function SurveyDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
   const [notice, setNotice] = useState("");
   const [publishError, setPublishError] = useState("");
   const publishButton = useRef<HTMLButtonElement>(null);
@@ -57,6 +59,19 @@ export default function SurveyDetail() {
     }
   }
 
+  async function duplicate() {
+    if (!survey || duplicating) return;
+    setDuplicating(true);
+    try {
+      const copy = await api.duplicateSurvey(survey.id);
+      navigate(`/owner/surveys/${copy.id}`);
+    } catch (err) {
+      setPublishError(err instanceof ApiError ? err.message : "The survey could not be duplicated.");
+    } finally {
+      setDuplicating(false);
+    }
+  }
+
   if (notFound) {
     return (
       <div className="cf-panel">
@@ -83,9 +98,16 @@ export default function SurveyDetail() {
             Publish
           </button>
         ) : (
-          <Link to={`/owner/surveys/${survey.id}/summary`} className="btn btn-outline-secondary btn-sm ms-auto">
-            View results
-          </Link>
+          <>
+            <Link to={`/owner/surveys/${survey.id}/summary`} className="btn btn-outline-secondary btn-sm ms-auto">
+              View results
+            </Link>
+            {survey.status === "CLOSED" && (
+              <button type="button" className="btn btn-outline-secondary btn-sm" disabled={duplicating} onClick={duplicate}>
+                {duplicating ? "Duplicating…" : "Duplicate as draft"}
+              </button>
+            )}
+          </>
         )}
       </div>
       <p role="status" className="text-success mb-2">
