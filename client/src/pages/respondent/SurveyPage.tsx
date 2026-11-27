@@ -8,6 +8,7 @@ import FieldError from "../../components/FieldError.js";
 // fieldset with its text as legend; all are required; one request per click; on 400 the
 // answers stay selected; a 409 explains why and links back to the list.
 const RATINGS = [1, 2, 3, 4, 5];
+const TEXT_MAX = 1000;
 
 export default function SurveyPage() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ export default function SurveyPage() {
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [textAnswers, setTextAnswers] = useState<Record<number, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [refusal, setRefusal] = useState("");
   const [formError, setFormError] = useState("");
@@ -53,14 +55,24 @@ export default function SurveyPage() {
     if (!survey || submitting.current) return;
     const missing: Record<string, string> = {};
     for (const q of survey.questions) {
-      if (answers[q.id] === undefined) missing[`answers[${q.id}]`] = "Please answer this question";
+      if (q.type === "TEXT") {
+        const val = (textAnswers[q.id] ?? "").trim();
+        if (!val) missing[`answers[${q.id}]`] = "Please answer this question";
+        else if (val.length > TEXT_MAX) missing[`answers[${q.id}]`] = `Must be ${TEXT_MAX} characters or fewer`;
+      } else if (answers[q.id] === undefined) {
+        missing[`answers[${q.id}]`] = "Please answer this question";
+      }
     }
     setErrors(missing);
     setFormError("");
     if (Object.keys(missing).length > 0) return;
 
     const body: AnswerBody[] = survey.questions.map((q) =>
-      q.type === "RATING" ? { questionId: q.id, ratingValue: answers[q.id] } : { questionId: q.id, optionId: answers[q.id] },
+      q.type === "RATING"
+        ? { questionId: q.id, ratingValue: answers[q.id] }
+        : q.type === "TEXT"
+          ? { questionId: q.id, textValue: (textAnswers[q.id] ?? "").trim() }
+          : { questionId: q.id, optionId: answers[q.id] },
     );
     submitting.current = true;
     setBusy(true);
@@ -138,6 +150,29 @@ export default function SurveyPage() {
                         </label>
                       ))}
                     </div>
+                  </>
+                ) : q.type === "TEXT" ? (
+                  <>
+                    <textarea
+                      id={`q${q.id}-text`}
+                      className="form-control"
+                      rows={3}
+                      maxLength={TEXT_MAX}
+                      value={textAnswers[q.id] ?? ""}
+                      aria-invalid={Boolean(errors[key])}
+                      onChange={(e) => {
+                        setTextAnswers((t) => ({ ...t, [q.id]: e.target.value }));
+                        setErrors((prev) => {
+                          if (!(key in prev)) return prev;
+                          const next = { ...prev };
+                          delete next[key];
+                          return next;
+                        });
+                      }}
+                    />
+                    <p className="small text-body-secondary mt-1 mb-0">
+                      {(textAnswers[q.id] ?? "").length} / {TEXT_MAX}
+                    </p>
                   </>
                 ) : (
                   q.options.map((o) => (

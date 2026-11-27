@@ -9,6 +9,33 @@ import { requireAuth, requireRole } from "../auth/middleware.js";
 export const responsesRouter = Router();
 responsesRouter.use(requireAuth, requireRole("RESPONDENT"));
 
+// F-11: a respondent lists the surveys they already answered and re-reads their responses.
+responsesRouter.get("/", async (req, res, next) => {
+  try {
+    const responses = await prisma.response.findMany({
+      where: { respondentId: req.user!.id },
+      orderBy: { submittedAt: "desc" },
+      select: {
+        id: true,
+        surveyId: true,
+        submittedAt: true,
+        survey: { select: { title: true, status: true } },
+      },
+    });
+    res.json({
+      data: responses.map((r) => ({
+        id: r.id,
+        surveyId: r.surveyId,
+        surveyTitle: r.survey.title,
+        surveyStatus: r.survey.status,
+        submittedAt: r.submittedAt,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 responsesRouter.get("/:id", async (req, res, next) => {
   try {
     const id = parseId(req.params.id);
@@ -28,6 +55,7 @@ responsesRouter.get("/:id", async (req, res, next) => {
                   questionId: true,
                   ratingValue: true,
                   optionId: true,
+                  textValue: true,
                   question: { select: { text: true, type: true } },
                   option: { select: { label: true } },
                 },
@@ -47,7 +75,9 @@ responsesRouter.get("/:id", async (req, res, next) => {
         answers: response.answers.map((a) =>
           a.question.type === "RATING"
             ? { questionId: a.questionId, questionText: a.question.text, type: "RATING", ratingValue: a.ratingValue }
-            : { questionId: a.questionId, questionText: a.question.text, type: "CHOICE", optionId: a.optionId, optionLabel: a.option?.label },
+            : a.question.type === "CHOICE"
+              ? { questionId: a.questionId, questionText: a.question.text, type: "CHOICE", optionId: a.optionId, optionLabel: a.option?.label }
+              : { questionId: a.questionId, questionText: a.question.text, type: "TEXT", textValue: a.textValue },
         ),
       },
     });

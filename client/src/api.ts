@@ -52,7 +52,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 }
 
 export type SurveyStatus = "DRAFT" | "PUBLISHED" | "CLOSED";
-export type QuestionType = "RATING" | "CHOICE";
+export type QuestionType = "RATING" | "CHOICE" | "TEXT";
 
 export interface SurveyListItem {
   id: number;
@@ -112,7 +112,7 @@ export interface OpenSurveyDetail {
   questions: Question[];
 }
 
-export type AnswerBody = { questionId: number; ratingValue: number } | { questionId: number; optionId: number };
+export type AnswerBody = { questionId: number; ratingValue: number } | { questionId: number; optionId: number } | { questionId: number; textValue: string };
 
 export interface SubmittedResponse {
   id: number;
@@ -128,12 +128,41 @@ export interface ResponseDetail {
   answers: (
     | { questionId: number; questionText: string; type: "RATING"; ratingValue: number }
     | { questionId: number; questionText: string; type: "CHOICE"; optionId: number; optionLabel: string }
+    | { questionId: number; questionText: string; type: "TEXT"; textValue: string }
   )[];
 }
 
+export interface MyResponseItem {
+  id: number;
+  surveyId: number;
+  surveyTitle: string;
+  surveyStatus: SurveyStatus;
+  submittedAt: string;
+}
+
+export interface IndividualResponse {
+  id: number;
+  respondentName: string;
+  respondentEmail: string;
+  submittedAt: string;
+  answers: (
+    | { questionId: number; ratingValue: number }
+    | { questionId: number; optionId: number; optionLabel: string }
+    | { questionId: number; textValue: string }
+  )[];
+}
+
+export interface SurveyResponses {
+  surveyId: number;
+  title: string;
+  questions: { id: number; position: number; text: string; type: QuestionType }[];
+  responses: IndividualResponse[];
+}
+
 export type QuestionSummary =
-  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<"1" | "2" | "3" | "4" | "5", number> }
-  | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] };
+  | { questionId: number; position: number; text: string; type: "RATING"; average: number | null; distribution: Record<string, number> }
+  | { questionId: number; position: number; text: string; type: "CHOICE"; options: { optionId: number; label: string; count: number }[] }
+  | { questionId: number; position: number; text: string; type: "TEXT"; answerCount: number };
 
 export interface SurveySummary {
   surveyId: number;
@@ -151,6 +180,8 @@ export const api = {
   listSurveys: () => request<SurveyListItem[]>("GET", "/api/surveys"),
   createSurvey: (body: NewSurveyBody) => request<SurveyDetail>("POST", "/api/surveys", body),
   getSurvey: (id: number) => request<SurveyDetail>("GET", `/api/surveys/${id}`),
+  updateSurvey: (id: number, body: NewSurveyBody) => request<SurveyDetail>("PUT", `/api/surveys/${id}`, body),
+  deleteSurvey: (id: number) => request<void>("DELETE", `/api/surveys/${id}`),
   publishSurvey: (id: number) =>
     request<{ id: number; status: SurveyStatus; publishedAt: string }>("POST", `/api/surveys/${id}/publish`),
   listOpenSurveys: () => request<OpenSurvey[]>("GET", "/api/open-surveys"),
@@ -159,6 +190,10 @@ export const api = {
     request<SubmittedResponse>("POST", `/api/open-surveys/${surveyId}/responses`, { answers }),
   getResponse: (id: number) => request<ResponseDetail>("GET", `/api/responses/${id}`),
   getSummary: (id: number) => request<SurveySummary>("GET", `/api/surveys/${id}/summary`),
+  closeSurvey: (id: number) =>
+    request<{ id: number; status: SurveyStatus; closedAt: string }>("POST", `/api/surveys/${id}/close`),
+  listMyResponses: () => request<MyResponseItem[]>("GET", "/api/responses"),
+  getSurveyResponses: (id: number) => request<SurveyResponses>("GET", `/api/surveys/${id}/responses`),
 };
 
 export const STATUS_LABELS: Record<SurveyStatus, string> = {

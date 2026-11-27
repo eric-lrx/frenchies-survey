@@ -53,6 +53,7 @@ enum SurveyStatus {
 enum QuestionType {
   RATING
   CHOICE
+  TEXT
 }
 
 model Survey {
@@ -112,8 +113,8 @@ model Response {
   @@index([surveyId])
 }
 
-// F-06: one answer per question. Two CHECK constraints in the migration SQL (Prisma cannot
-// declare them): ratingValue between 1 and 5, and exactly one of ratingValue and optionId.
+// F-06: one answer per question. CHECK constraints in the migration SQL (Prisma cannot
+// declare them): ratingValue between 1 and 5, and exactly one of ratingValue/optionId/textValue.
 model Answer {
   id          Int             @id @default(autoincrement())
   responseId  Int
@@ -123,6 +124,7 @@ model Answer {
   ratingValue Int?
   optionId    Int?
   option      QuestionOption? @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  textValue   String?
 
   @@unique([responseId, questionId])
   @@index([questionId])
