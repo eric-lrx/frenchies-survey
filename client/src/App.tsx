@@ -7,7 +7,9 @@ import MySurveys from "./pages/owner/MySurveys.js";
 import NewSurvey from "./pages/owner/NewSurvey.js";
 import SurveyDetail from "./pages/owner/SurveyDetail.js";
 import SurveySummary from "./pages/owner/SurveySummary.js";
+import SurveyResponses from "./pages/owner/SurveyResponses.js";
 import OpenSurveys from "./pages/respondent/OpenSurveys.js";
+import MyResponses from "./pages/respondent/MyResponses.js";
 import SurveyPage from "./pages/respondent/SurveyPage.js";
 import ResponseConfirmation from "./pages/respondent/ResponseConfirmation.js";
 
@@ -35,10 +37,12 @@ export default function App() {
           <Route path="/owner/surveys/new" element={<NewSurvey />} />
           <Route path="/owner/surveys/:id" element={<SurveyDetail />} />
           <Route path="/owner/surveys/:id/summary" element={<SurveySummary />} />
+          <Route path="/owner/surveys/:id/responses" element={<SurveyResponses />} />
         </Route>
         <Route element={<RoleRoute role="RESPONDENT" />}>
           <Route path="/surveys" element={<OpenSurveys />} />
           <Route path="/surveys/:id" element={<SurveyPage />} />
+          <Route path="/my-responses" element={<MyResponses />} />
           <Route path="/responses/:id" element={<ResponseConfirmation />} />
         </Route>
         <Route path="*" element={<Navigate to={user ? homePath(user.role) : "/login"} replace />} />
@@ -61,7 +65,10 @@ const NAV_LINKS: Record<Role, { to: string; label: string }[]> = {
     { to: "/owner/surveys", label: "My surveys" },
     { to: "/owner/surveys/new", label: "New survey" },
   ],
-  RESPONDENT: [{ to: "/surveys", label: "Open surveys" }],
+  RESPONDENT: [
+    { to: "/surveys", label: "Open surveys" },
+    { to: "/my-responses", label: "My responses" },
+  ],
 };
 
 function Shell({ children }: { children: React.ReactNode }) {

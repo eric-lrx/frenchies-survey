@@ -12,11 +12,13 @@ export default function SurveyDetail() {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState<"publish" | "close" | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [notice, setNotice] = useState("");
   const [publishError, setPublishError] = useState("");
   const publishButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
 
   const load = useCallback(() => {
     setError("");
@@ -34,9 +36,9 @@ export default function SurveyDetail() {
   useEffect(load, [load]);
 
   function closeDialog() {
-    setConfirming(false);
-    // Focus goes back to the button that opened the dialog, if it is still there.
-    requestAnimationFrame(() => publishButton.current?.focus());
+    const wasClosing = confirming === "close";
+    setConfirming(null);
+    requestAnimationFrame(() => (wasClosing ? closeButton : publishButton).current?.focus());
   }
 
   async function publish() {
@@ -47,13 +49,31 @@ export default function SurveyDetail() {
       const result = await api.publishSurvey(survey.id);
       setSurvey({ ...survey, status: result.status, publishedAt: result.publishedAt });
       setNotice("The survey is published. Respondents can now answer it.");
-      setConfirming(false);
+      setConfirming(null);
     } catch (err) {
       setPublishError(err instanceof ApiError ? err.message : "The survey could not be published.");
       closeDialog();
       if (err instanceof ApiError && err.status === 409) load();
     } finally {
       setPublishing(false);
+    }
+  }
+
+  async function closeSurvey() {
+    if (!survey || closing) return;
+    setClosing(true);
+    setPublishError("");
+    try {
+      const result = await api.closeSurvey(survey.id);
+      setSurvey({ ...survey, status: result.status });
+      setNotice("The survey is closed. No more responses will be accepted.");
+      setConfirming(null);
+    } catch (err) {
+      setPublishError(err instanceof ApiError ? err.message : "The survey could not be closed.");
+      closeDialog();
+      if (err instanceof ApiError && err.status === 409) load();
+    } finally {
+      setClosing(false);
     }
   }
 
@@ -78,14 +98,25 @@ export default function SurveyDetail() {
           {survey.title}
         </h1>
         <StatusBadge status={survey.status} />
-        {survey.status === "DRAFT" ? (
-          <button ref={publishButton} type="button" className="btn btn-cafe btn-sm ms-auto" onClick={() => setConfirming(true)}>
+        {survey.status === "DRAFT" && (
+          <button ref={publishButton} type="button" className="btn btn-cafe btn-sm ms-auto" onClick={() => setConfirming("publish")}>
             Publish
           </button>
-        ) : (
-          <Link to={`/owner/surveys/${survey.id}/summary`} className="btn btn-outline-secondary btn-sm ms-auto">
-            View results
-          </Link>
+        )}
+        {survey.status !== "DRAFT" && (
+          <>
+            <Link to={`/owner/surveys/${survey.id}/summary`} className="btn btn-outline-secondary btn-sm ms-auto">
+              View results
+            </Link>
+            <Link to={`/owner/surveys/${survey.id}/responses`} className="btn btn-outline-secondary btn-sm">
+              Individual responses
+            </Link>
+          </>
+        )}
+        {survey.status === "PUBLISHED" && (
+          <button ref={closeButton} type="button" className="btn btn-outline-danger btn-sm" onClick={() => setConfirming("close")}>
+            Close survey
+          </button>
         )}
       </div>
       <p role="status" className="text-success mb-2">
@@ -123,13 +154,23 @@ export default function SurveyDetail() {
         ))}
       </ol>
 
-      {confirming && (
+      {confirming === "publish" && (
         <ConfirmDialog
           title="Publish this survey?"
           message="Once published, respondents can answer and the questions can no longer be changed."
           confirmLabel="Publish"
           busy={publishing}
           onConfirm={publish}
+          onCancel={closeDialog}
+        />
+      )}
+      {confirming === "close" && (
+        <ConfirmDialog
+          title="Close this survey?"
+          message="Once closed, no more responses will be accepted. This cannot be undone."
+          confirmLabel="Close"
+          busy={closing}
+          onConfirm={closeSurvey}
           onCancel={closeDialog}
         />
       )}

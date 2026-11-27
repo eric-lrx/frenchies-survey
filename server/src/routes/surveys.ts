@@ -125,6 +125,113 @@ surveysRouter.post("/:id/publish", async (req, res, next) => {
   }
 });
 
+// F-10: PUBLISHED -> CLOSED (BR-02). Same conditional-update pattern as F-04 above.
+surveysRouter.post("/:id/close", async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      surveyNotFound(res);
+      return;
+    }
+    const ownerId = req.user!.id;
+    const now = new Date();
+    const { count } = await prisma.survey.updateMany({
+      where: { id, ownerId, status: "PUBLISHED" },
+      data: { status: "CLOSED", closedAt: now },
+    });
+    if (count === 1) {
+      res.json({ data: { id, status: "CLOSED", closedAt: now } });
+      return;
+    }
+
+    const survey = await prisma.survey.findFirst({ where: { id, ownerId }, select: { status: true } });
+    if (!survey) {
+      surveyNotFound(res);
+    } else {
+      sendError(res, 409, "INVALID_TRANSITION", "Only a published survey can be closed.", { currentStatus: survey.status });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// F-14: individual responses for the survey owner, with optional CSV export.
+surveysRouter.get("/:id/responses", async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    const survey = id === null ? null : await prisma.survey.findFirst({
+      where: { id, ownerId: req.user!.id },
+      include: {
+        questions: { orderBy: { position: "asc" }, select: { id: true, position: true, text: true, type: true } },
+      },
+    });
+    if (!survey) {
+      surveyNotFound(res);
+      return;
+    }
+
+    const responses = await prisma.response.findMany({
+      where: { surveyId: survey.id },
+      orderBy: { submittedAt: "desc" },
+      include: {
+        respondent: { select: { id: true, name: true, email: true } },
+        answers: {
+          orderBy: { question: { position: "asc" } },
+          select: { questionId: true, ratingValue: true, optionId: true, option: { select: { label: true } } },
+        },
+      },
+    });
+
+    const format = req.query.format;
+    if (format === "csv") {
+      const questions = survey.questions;
+      const header = ["Respondent", "Email", "Submitted at", ...questions.map((q) => q.text)];
+      const rows = responses.map((r) => {
+        const answerMap = new Map(r.answers.map((a) => [a.questionId, a]));
+        return [
+          r.respondent.name,
+          r.respondent.email,
+          r.submittedAt.toISOString(),
+          ...questions.map((q) => {
+            const a = answerMap.get(q.id);
+            if (!a) return "";
+            if (q.type === "RATING") return String(a.ratingValue ?? "");
+            return a.option?.label ?? "";
+          }),
+        ];
+      });
+      const csvLines = [header, ...rows].map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      );
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="survey-${survey.id}-responses.csv"`);
+      res.send(csvLines.join("\n") + "\n");
+      return;
+    }
+
+    res.json({
+      data: {
+        surveyId: survey.id,
+        title: survey.title,
+        questions: survey.questions,
+        responses: responses.map((r) => ({
+          id: r.id,
+          respondentName: r.respondent.name,
+          respondentEmail: r.respondent.email,
+          submittedAt: r.submittedAt,
+          answers: r.answers.map((a) =>
+            a.ratingValue !== null
+              ? { questionId: a.questionId, ratingValue: a.ratingValue }
+              : { questionId: a.questionId, optionId: a.optionId, optionLabel: a.option?.label },
+          ),
+        })),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // F-07: the owner's aggregate summary, in any status. Three aggregate queries (response
 // count, rating counts by question and value, option counts), not one per question or per
 // response (contract section 1).

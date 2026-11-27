@@ -9,6 +9,33 @@ import { requireAuth, requireRole } from "../auth/middleware.js";
 export const responsesRouter = Router();
 responsesRouter.use(requireAuth, requireRole("RESPONDENT"));
 
+// F-11: a respondent lists the surveys they already answered and re-reads their responses.
+responsesRouter.get("/", async (req, res, next) => {
+  try {
+    const responses = await prisma.response.findMany({
+      where: { respondentId: req.user!.id },
+      orderBy: { submittedAt: "desc" },
+      select: {
+        id: true,
+        surveyId: true,
+        submittedAt: true,
+        survey: { select: { title: true, status: true } },
+      },
+    });
+    res.json({
+      data: responses.map((r) => ({
+        id: r.id,
+        surveyId: r.surveyId,
+        surveyTitle: r.survey.title,
+        surveyStatus: r.survey.status,
+        submittedAt: r.submittedAt,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 responsesRouter.get("/:id", async (req, res, next) => {
   try {
     const id = parseId(req.params.id);
