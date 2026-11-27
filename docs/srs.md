@@ -52,7 +52,7 @@ response, multiple-choice (several answers) questions, and any external analytic
 | FR-02 | A signed-in user signs out, and the old session can no longer be used. | 1 |
 | FR-03 | The signed-in user's name and role can be retrieved. | 1 |
 | FR-04 | A Survey Owner creates a survey in DRAFT with a title, an optional description and at least one question. | 1 |
-| FR-05 | A question is either a rating (integer 1 to 5) or a single choice among 2 to 6 options. | 1 |
+| FR-05 | A question is either a rating (integer 1 to 10) or a single choice among 2 to 6 options. | 1 |
 | FR-06 | A Survey Owner edits or deletes the questions of their own DRAFT surveys. | 2 |
 | FR-07 | A Survey Owner publishes their own DRAFT survey. | 1 |
 | FR-08 | A Respondent lists the PUBLISHED surveys and opens one to answer it. | 1 |
@@ -78,7 +78,7 @@ response, multiple-choice (several answers) questions, and any external analytic
 | BR-05 | Responses are accepted only while the survey is PUBLISHED. |
 | BR-06 | One respondent has at most one response per survey. The database enforces it, so two simultaneous submissions cannot both succeed. |
 | BR-07 | A response must answer every question of the survey. |
-| BR-08 | A rating answer is an integer from 1 to 5. A choice answer is one of that question's own options. An answer cannot target a question of another survey. |
+| BR-08 | A rating answer is an integer from 1 to 10. A choice answer is one of that question's own options. An answer cannot target a question of another survey. |
 | BR-09 | A submitted response cannot be changed or deleted by its respondent. |
 | BR-10 | A Respondent never sees another respondent's answers. A Survey Owner cannot submit a response (one role per account). |
 | BR-11 | Averages are computed from stored answers and rounded to one decimal. With zero responses the count is 0 and the averages are empty, not 0. |
@@ -125,3 +125,4 @@ response, multiple-choice (several answers) questions, and any external analytic
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1 | 2026-11-05 | First baseline | Project Deliverable 1 |
+| 0.2 | 2026-11-27 | FR-05, BR-08: widen rating scale from 1-5 to 1-10 | Lab 7 Sprint 1 maintenance (TA-approved change request) |
