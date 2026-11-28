@@ -99,9 +99,9 @@ describe("POST /api/open-surveys/:id/responses", () => {
       ["an unknown question", { answers: [goodRating, goodChoice, { questionId: other.questions[0].id, ratingValue: 3 }] }, "answers", "Unknown question"],
       ["a questionId sent as a string", { answers: [goodRating, { questionId: String(choice.id), optionId: choice.options[0].id }] }, "answers", "Unknown question"],
       ["two answers for one question", { answers: [goodRating, { questionId: rating.id, ratingValue: 5 }, goodChoice] }, `answers[${rating.id}]`, "Answer once"],
-      ["rating 0", { answers: [{ questionId: rating.id, ratingValue: 0 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 5"],
-      ["rating 6", { answers: [{ questionId: rating.id, ratingValue: 6 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 5"],
-      ["rating 2.5", { answers: [{ questionId: rating.id, ratingValue: 2.5 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 5"],
+      ["rating 0", { answers: [{ questionId: rating.id, ratingValue: 0 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 10"],
+      ["rating 11", { answers: [{ questionId: rating.id, ratingValue: 11 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 10"],
+      ["rating 2.5", { answers: [{ questionId: rating.id, ratingValue: 2.5 }, goodChoice] }, `answers[${rating.id}]`, "Choose a rating from 1 to 10"],
       ["an option of another question", { answers: [goodRating, { questionId: choice.id, optionId: other.questions[1].options[0].id }] }, `answers[${choice.id}]`, "Choose one of the options"],
       ["a rating answer with an optionId", { answers: [{ questionId: rating.id, optionId: choice.options[0].id }, goodChoice] }, `answers[${rating.id}]`, "Wrong answer type for this question"],
     ];
@@ -143,12 +143,12 @@ describe("Submitted responses are final", () => {
 });
 
 describe("Database constraints behind the API", () => {
-  it("refuses a rating outside 1 to 5 and an answer with both or neither value, even written directly", async () => {
+  it("refuses a rating outside 1 to 10 and an answer with both or neither value, even written directly", async () => {
     const response = await createResponse(survey, respondentId);
     const [rating, choice] = survey.questions;
     await prisma.answer.deleteMany({ where: { responseId: response.id } });
 
-    await expect(prisma.answer.create({ data: { responseId: response.id, questionId: rating.id, ratingValue: 7 } })).rejects.toThrow();
+    await expect(prisma.answer.create({ data: { responseId: response.id, questionId: rating.id, ratingValue: 11 } })).rejects.toThrow();
     await expect(
       prisma.answer.create({ data: { responseId: response.id, questionId: choice.id, ratingValue: 3, optionId: choice.options[0].id } }),
     ).rejects.toThrow();

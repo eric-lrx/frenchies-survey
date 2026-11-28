@@ -7,7 +7,7 @@ import FieldError from "../../components/FieldError.js";
 // F-06 answer form (contract section 3), on the survey page of F-05. Every question is a
 // fieldset with its text as legend; all are required; one request per click; on 400 the
 // answers stay selected; a 409 explains why and links back to the list.
-const RATINGS = [1, 2, 3, 4, 5];
+const RATINGS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function SurveyPage() {
   const { id } = useParams();
@@ -129,7 +129,7 @@ export default function SurveyPage() {
                 <legend className="h6">{q.text}</legend>
                 {q.type === "RATING" ? (
                   <>
-                    <p className="small text-body-secondary mb-2">1 = very poor, 5 = excellent</p>
+                    <p className="small text-body-secondary mb-2">1 = very poor, 10 = excellent</p>
                     <div className="rating-row">
                       {RATINGS.map((n) => (
                         <label key={n} className="rating-choice">

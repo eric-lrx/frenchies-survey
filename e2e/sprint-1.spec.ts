@@ -37,12 +37,12 @@ test("E2E-01 an owner creates and publishes a survey, a respondent answers it, t
   await alice.getByLabel("Latte").check();
   await alice.getByRole("button", { name: "Submit" }).click();
   await expect(alice.getByRole("heading", { name: "Thank you, your response was recorded" })).toBeVisible();
-  await expect(alice.getByText("4 / 5")).toBeVisible();
+  await expect(alice.getByText("4 / 10")).toBeVisible();
 
   // Camille reads the summary: one response, average 4.0, Latte chosen once.
   await owner.goto(`${surveyPath}/summary`);
   await expect(owner.getByText("1 response", { exact: true })).toBeVisible();
-  await expect(owner.getByText("4.0 / 5")).toBeVisible();
+  await expect(owner.getByText("4.0 / 10")).toBeVisible();
   const choices = owner.getByRole("table", { name: "Which drink did you have?" });
   await expect(choices.getByRole("row", { name: /Latte/ })).toContainText("1");
   await expect(choices.getByRole("row", { name: /Orange juice/ })).toContainText("0");

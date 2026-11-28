@@ -136,7 +136,7 @@ export default function NewSurvey() {
                       Question {n} type
                     </label>
                     <select id={`q${q.key}-type`} className="form-select" value={q.type} onChange={(e) => changeType(i, e.target.value as QuestionType)}>
-                      <option value="RATING">Rating (1 to 5)</option>
+                      <option value="RATING">Rating (1 to 10)</option>
                       <option value="CHOICE">Single choice</option>
                     </select>
                   </div>

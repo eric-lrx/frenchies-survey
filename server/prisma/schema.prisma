@@ -113,7 +113,7 @@ model Response {
 }
 
 // F-06: one answer per question. Two CHECK constraints in the migration SQL (Prisma cannot
-// declare them): ratingValue between 1 and 5, and exactly one of ratingValue and optionId.
+// declare them): ratingValue between 1 and 10, and exactly one of ratingValue and optionId.
 model Answer {
   id          Int             @id @default(autoincrement())
   responseId  Int
