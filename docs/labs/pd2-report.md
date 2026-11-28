@@ -60,11 +60,11 @@ The core Sprint 1 journey (Sign in → Create survey → Publish → Browse → 
 
 | Feature | Requirement | Branch / PR | AC verified | Tests | Status |
 |---------|------------|-------------|-------------|-------|--------|
-| F-09 Manage drafts | FR-06 | `sprint2/features` PR #50 | AC-F09-01 to AC-F09-04 | TEST-F09-01 to -04 | Done |
-| F-10 Close survey | FR-12 | `sprint2/features` PR #50 | AC-F10-01 to AC-F10-03 | TEST-F10-01 to -03 | Done |
-| F-11 My responses | FR-09 | `sprint2/features` PR #50 | AC-F11-01 to AC-F11-03 | TEST-F11-01, -02 | Done |
-| F-12 Text questions | FR-15 | `sprint2/features` PR #50 | AC-F12-01 to AC-F12-06 | UNIT-01, UNIT-02 (updated), TEST-F12-01 to -05 | Done |
-| F-14 Individual responses + CSV | FR-14 | `sprint2/features` PR #50 | AC-F14-01 to AC-F14-04 | TEST-F14-01 to -03 | Done |
+| F-09 Manage drafts | FR-06 | `sprint2/features` PR #50 | AC-F09-01 to AC-F09-04 | Not yet written | Code done, tests pending |
+| F-10 Close survey | FR-12 | `sprint2/features` PR #50 | AC-F10-01 to AC-F10-03 | Not yet written | Code done, tests pending |
+| F-11 My responses | FR-09 | `sprint2/features` PR #50 | AC-F11-01 to AC-F11-03 | Not yet written | Code done, tests pending |
+| F-12 Text questions | FR-15 | `sprint2/features` PR #50 | AC-F12-01 to AC-F12-06 | UNIT-01, UNIT-02 (updated for TEXT) | Done |
+| F-14 Individual responses + CSV | FR-14 | `sprint2/features` PR #50 | AC-F14-01 to AC-F14-04 | Not yet written | Code done, tests pending |
 | F-13 Eligibility list | FR-13 | — | — | — | Deferred to Sprint 3 |
 | F-15 Performance/responsive | NFR | — | — | — | Deferred to Sprint 3 (F-19) |
 
@@ -205,11 +205,11 @@ Full contracts are in `docs/sprints/sprint-3/`:
 | FR-10 | F-06 | 1 | AC-F06-05 | UNIT-02 | `server/tests/unit/survey-rules.unit.test.ts` | Pass | `v0.1.0` |
 | FR-11 | F-07 | 1 | AC-F07-01 | UNIT-03 | `server/tests/unit/survey-rules.unit.test.ts` | Pass | `v0.1.0` |
 | FR-11 | F-07 | 1 | AC-F07-01 | UI-04 | `client/tests/Summary.test.tsx` | Pass | `v0.1.0` |
-| FR-06 | F-09 | 2 | AC-F09-01 | TEST-F09-01 | `server/tests/surveys.api.test.ts` | Pass | Sprint 2 branch |
-| FR-12 | F-10 | 2 | AC-F10-01 | TEST-F10-01 | `server/tests/surveys.api.test.ts` | Pass | Sprint 2 branch |
-| FR-09 | F-11 | 2 | AC-F11-01 | TEST-F11-01 | `server/tests/responses.api.test.ts` | Pass | Sprint 2 branch |
-| FR-15 | F-12 | 2 | AC-F12-01 | UNIT-01 | `server/tests/unit/survey-rules.unit.test.ts` | Pass | Sprint 2 branch |
-| FR-14 | F-14 | 2 | AC-F14-01 | TEST-F14-01 | `server/tests/surveys.api.test.ts` | Pass | Sprint 2 branch |
+| FR-06 | F-09 | 2 | AC-F09-01 | TEST-F09-01 | — | Not tested | Sprint 2 branch (PR #50, pending review) |
+| FR-12 | F-10 | 2 | AC-F10-01 | TEST-F10-01 | — | Not tested | Sprint 2 branch (PR #50, pending review) |
+| FR-09 | F-11 | 2 | AC-F11-01 | TEST-F11-01 | — | Not tested | Sprint 2 branch (PR #50, pending review) |
+| FR-15 | F-12 | 2 | AC-F12-01 | UNIT-01 | `server/tests/unit/survey-rules.unit.test.ts` | Pass (updated) | Sprint 2 branch |
+| FR-14 | F-14 | 2 | AC-F14-01 | TEST-F14-01 | — | Not tested | Sprint 2 branch (PR #50, pending review) |
 | FR-18 | F-18 | 3 | AC-F18-01 | TEST-F18-01 | `server/tests/surveys.api.test.ts` | Pass | Sprint 3 branch |
 | FR-18 | F-18 | 3 | AC-F18-03 | TEST-F18-02 | `server/tests/surveys.api.test.ts` | Pass | Sprint 3 branch |
 | FR-13 | F-13 | 2→3 | — | — | — | Not implemented | — |
@@ -220,6 +220,10 @@ Full contracts are in `docs/sprints/sprint-3/`:
 
 | Requirement | Gap | Planned resolution |
 |-------------|-----|-------------------|
+| FR-06 (F-09) | No automated tests for manage drafts | Add API tests before Sprint 2 merge |
+| FR-12 (F-10) | No automated tests for close survey | Add API tests before Sprint 2 merge |
+| FR-09 (F-11) | No automated tests for my responses | Add API tests before Sprint 2 merge |
+| FR-14 (F-14) | No automated tests for individual responses + CSV | Add API tests before Sprint 2 merge |
 | FR-13 | Eligibility list not implemented | Sprint 3 (Eric, by 10 Dec) |
 | FR-16 | Anonymous mode not implemented | Sprint 3 (Eric + Marc, by 8 Dec) |
 | FR-17 | Date filter not implemented | Sprint 3 (Eric + Marc, by 10 Dec) |

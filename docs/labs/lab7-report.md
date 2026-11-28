@@ -87,9 +87,9 @@ The contract revision was committed *before* the implementation: commit `9a0b427
 
 *(Evidence is in PR #49 on GitHub: branch `lab7/rating-scale-1-10`, CI runs, code diff, and Marc's review. Key evidence is included inline below.)*
 
-### B.1 RED — test fails on old code
+### B.1 RED — expected failures on old code
 
-The test `UNIT-02 "accepts ratings 1 and 5"` on the Sprint 1 baseline (`v0.1.0`) uses `ratingValue: 5` as a boundary. After updating the test to assert `ratingValue: 10`, the test fails because `validateAnswers` only accepts 1–5. Similarly, `Summary.test.tsx` expects `"4.3 / 5"` and 5 distribution rows.
+On the Sprint 1 baseline (`v0.1.0`), `validateAnswers` accepts only ratings 1–5 and `computeSummary` returns 5 distribution keys. Any test asserting `ratingValue: 10` would fail, and `Summary.test.tsx` expects `"4.3 / 5"` with 5 rows. The implementation and updated tests were committed together (commit `dc68274`), so there is no separate CI run proving a RED state. The two subsequent CI failures ([46024124338](https://github.com/eric-lrx/frenchies-survey/actions/runs/46024124338), [46023022611](https://github.com/eric-lrx/frenchies-survey/actions/runs/46023022611)) were caused by incremental test updates, not by a deliberate RED run.
 
 ### B.2 GREEN — implementation
 
@@ -111,8 +111,9 @@ The test `UNIT-02 "accepts ratings 1 and 5"` on the Sprint 1 baseline (`v0.1.0`)
 All existing tests pass on the CI run for PR #49 (run ID `46025996567`, 27 Nov 2026, status: success, duration: 2m12s).
 
 Command: `npm test` in both `server/` and `client/`.
-- Server: 3 test files, all passed.
+- Server: 12 test files, 123 tests, all passed.
 - Client: 4 test files, 9 tests, all passed.
+- E2E: 4 Playwright tests passed.
 
 ### B.4 Review and integration
 
@@ -128,7 +129,7 @@ PR #49 (`lab7/rating-scale-1-10` → `main`) is open and CI-green. Waiting for M
 |---|--------|------------|-------|--------|-------|--------|
 | 1 | **Completed Issues** | Issues moved to Closed state | `eric-lrx/frenchies-survey` | 5 Nov – 27 Nov | **14** (Issues #1, #3, #5, #7, #9, #11, #13, #15, #17, #19, #22–#25, #28–#30) | `gh issue list --state closed` |
 | 2 | **Merged PRs** | PRs merged to main or staging | `eric-lrx/frenchies-survey` | 5 Nov – 27 Nov | **15** (PRs #2, #4, #6, #8, #10, #12, #14, #16, #18, #20, #21, #31, #33–#36, #38, #44, #45) | `gh pr list --state merged` |
-| 3 | **Automated test results** | Passed/failed/skipped on `v0.1.0` commit | Server test suite (`vitest run`) | Commit `1839e27` | **12 passed, 0 failed, 0 skipped** (3 unit + 9 API in server; 9 UI in client) | CI run on PR #32 (merged) |
+| 3 | **Automated test results** | Passed/failed/skipped on branch head | Server + client + E2E (`vitest run`, Playwright) | CI run `46025996567` | **136 passed, 0 failed, 0 skipped** (123 server + 9 client + 4 E2E) | CI run on PR #49 |
 | 4 | **UAT defect status** | Defects found in Lab 6 UAT | Lab 6 UAT window (19–22 Nov) | 19–22 Nov | **2 open**: Issue #46 (Back button after sign-out), Issue #47 (published date earlier than created) | `gh issue list --state open --label lab6-uat` |
 | 5 | **CI run outcomes** | Successful/failed/cancelled CI runs | `CI` workflow, all branches | 5 Nov – 27 Nov | **15 successful, 6 failed, 0 cancelled** (failures fixed in same session; most recent 2 runs both green) | `gh run list --limit 30` |
 
@@ -151,8 +152,8 @@ regression test for the date-ordering display in Sprint 3 (Issue #47).
 |------|--------|--------|
 | **Submitted version** | Tag `v0.1.0` (Sprint 1 baseline); maintenance on branch `lab7/rating-scale-1-10` | Commit `f09c22c` |
 | **Defects (severity/status)** | 2 open low-severity (Issue #46, #47). 0 critical/high. | #46 has fix PR #48 ready |
-| **Automated test results** | Server: 12/12 passed. Client: 9/9 passed. 0 failed, 0 skipped. | CI run `46025996567` (green) |
-| **UAT results** | Lab 6 UAT: 4/6 cases passed, 2 minor defects found (see above) | UAT record in `docs/labs/lab6/` |
+| **Automated test results** | Server: 123/123 passed. Client: 9/9 passed. E2E: 4/4 passed. 0 failed, 0 skipped. | CI run `46025996567` (green) |
+| **UAT results** | Lab 6 UAT: 2 findings received (Issue #46, Issue #47), both low-severity | UAT record in `docs/labs/lab-06/` |
 | **Technical debt** | None critical. The Summary component distribution keys are hard-coded; a future change to a different scale would need another update. | Low priority |
 | **Configuration/secrets** | No secrets in repo. DATABASE_URL and session secret in Cloud Run env vars. | Verified |
 | **Documentation** | SRS updated for 1–10 scale (commit `9a0b427`). README current. | — |
@@ -196,6 +197,6 @@ the change.
 
 ### Known limitations
 
-- The maintenance change is on a branch (PR #49), not yet merged to main. The deployed
-  revision still has the 1–5 scale until Marc merges and deploys.
+- The maintenance change is on branch `lab7/rating-scale-1-10` (PR #49). The deployed
+  revision and test results will be updated after Marc merges and deploys.
 - The two open UAT defects (#46, #47) are unrelated to the maintenance change.
