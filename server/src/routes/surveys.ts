@@ -169,6 +169,47 @@ surveysRouter.get("/:id/summary", async (req, res, next) => {
   }
 });
 
+// F-18: duplicate a CLOSED survey as a new DRAFT (FR-18, BR-02).
+surveysRouter.post("/:id/duplicate", async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    const survey =
+      id === null
+        ? null
+        : await prisma.survey.findFirst({
+            where: { id, ownerId: req.user!.id },
+            include: SURVEY_DETAIL,
+          });
+    if (!survey) {
+      surveyNotFound(res);
+      return;
+    }
+    if (survey.status !== "CLOSED") {
+      sendError(res, 409, "INVALID_STATUS", "Only a closed survey can be duplicated.", { currentStatus: survey.status });
+      return;
+    }
+    const copy = await prisma.survey.create({
+      data: {
+        ownerId: req.user!.id,
+        title: `${survey.title} (copy)`,
+        description: survey.description,
+        questions: {
+          create: survey.questions.map((q) => ({
+            position: q.position,
+            text: q.text,
+            type: q.type,
+            options: { create: q.options.map((o) => ({ position: o.position, label: o.label })) },
+          })),
+        },
+      },
+      include: SURVEY_DETAIL,
+    });
+    res.status(201).json({ data: surveyDetail(copy) });
+  } catch (err) {
+    next(err);
+  }
+});
+
 surveysRouter.get("/:id", async (req, res, next) => {
   try {
     const id = parseId(req.params.id);

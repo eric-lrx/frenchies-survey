@@ -127,3 +127,40 @@ describe("GET /api/surveys and /api/surveys/:id", () => {
     expect(res.body).toEqual({ data: [] });
   });
 });
+
+describe("POST /api/surveys/:id/duplicate", () => {
+  it("TEST-F18-01 duplicates a CLOSED survey as a new DRAFT with the same questions and options", async () => {
+    const survey = await createSurvey(ownerId, { status: "CLOSED" });
+    const res = await request(app).post(`/api/surveys/${survey.id}/duplicate`).set("Cookie", ownerCookie);
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).toMatchObject({
+      title: "Spring menu feedback (copy)",
+      description: "Tell us what you think of the new spring menu.",
+      status: "DRAFT",
+      ownerId,
+      publishedAt: null,
+    });
+    expect(res.body.data.id).not.toBe(survey.id);
+    expect(res.body.data.questions).toHaveLength(2);
+    expect(res.body.data.questions[0]).toMatchObject({ position: 1, type: "RATING", text: "How would you rate the new pastries?" });
+    expect(res.body.data.questions[1]).toMatchObject({ position: 2, type: "CHOICE" });
+    expect(res.body.data.questions[1].options.map((o: { label: string }) => o.label)).toEqual(["Latte", "Iced tea", "Espresso"]);
+  });
+
+  it("TEST-F18-02 rejects duplicating a DRAFT or PUBLISHED survey", async () => {
+    for (const status of ["DRAFT", "PUBLISHED"] as const) {
+      const survey = await createSurvey(ownerId, { status });
+      const res = await request(app).post(`/api/surveys/${survey.id}/duplicate`).set("Cookie", ownerCookie);
+      expect(res.status).toBe(409);
+      expect(res.body.error.code).toBe("INVALID_STATUS");
+    }
+  });
+
+  it("TEST-F18-03 rejects duplicating another owner's survey", async () => {
+    const other = await createUser("SURVEY_OWNER", { email: "lucas@test.local" });
+    const survey = await createSurvey(other.id, { status: "CLOSED" });
+    const res = await request(app).post(`/api/surveys/${survey.id}/duplicate`).set("Cookie", ownerCookie);
+    expect(res.status).toBe(404);
+  });
+});
